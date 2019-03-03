@@ -1,4 +1,4 @@
-- name: install nux-dextop
+- name: Install nux-dextop
   yum:
     name: http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
     state: present
@@ -29,13 +29,17 @@
     - libwebp-devel
     - ffmpeg-devel
     - libtool
+    - tigervnc-server
+    - firefox
+    - fluxbox
+    - xterm
 
-- name: upgrade all packages
+- name: Upgrade all packages
   yum:
     name: '*'
     state: latest
 
-- name: modify tomcat.conf
+- name: Modify tomcat.conf
   lineinfile:
     path: /usr/share/tomcat/conf/tomcat.conf
     regexp: '^JAVA_OPTS='
@@ -98,3 +102,112 @@
     state: started
     enabled: yes
 
+- name: Download war
+  get_url:
+    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.0.0/binary/guacamole-1.0.0.war
+    dest: /var/lib/tomcat/webapps/guacamole.war
+    owner: tomcat
+    group: tomcat
+    mode: 0664
+  register: war_download
+
+- name: Create .guacamole directory
+  file:
+    path: /usr/share/tomcat/.guacamole/
+    state: directory
+
+- name: Create /etc/guacamole directory
+  file:
+    path: /etc/guacamole
+    state: directory
+
+- name: Copy guacamole.properties
+  copy:
+    src: guacamole.properties
+    dest: /etc/guacamole/
+    mode: 0644
+
+- name: Symbolic link to .guacamole directory
+  file:
+    src: /etc/guacamole/guacamole.properties
+    dest: /usr/share/tomcat/.guacamole/guacamole.properties
+    state: link
+
+- name: Copy user-mapping.xml
+  template:
+    src: user-mapping.xml.j2
+    dest: /etc/guacamole/user-mapping.xml
+    owner: tomcat
+    group: tomcat
+    mode: 0600
+
+- name: Restart service tomcat
+  service:
+    name: tomcat
+    state: restarted
+  when: war_download is changed
+
+- name: Copy .Xclients
+  copy:
+    src: Xclients
+    dest: /home/guac/.Xclients
+    owner: guac
+    group: guac
+    mode: 0775
+
+- name: Copy vncserver service
+  copy:
+    src: /lib/systemd/system/vncserver@.service
+    dest: /etc/systemd/system/vncserver@:1.service
+    remote_src: yes
+
+- name: Modify vncserver service 1/2
+  lineinfile:
+    path: /etc/systemd/system/vncserver@:1.service
+    regexp: '^ExecStart='
+    line: 'ExecStart=/usr/sbin/runuser -l guac -c "/usr/bin/vncserver %i -geometry 1024x768 -nolisten tcp -localhost"'
+
+- name: Modify vncserver service 2/2
+  lineinfile:
+    path: /etc/systemd/system/vncserver@:1.service
+    regexp: '^PIDFile='
+    line: 'PIDFile=/home/guac/.vnc/%H%i.pid'
+  register: service_vncserver_modify
+
+- name: Force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+  when: service_vncserver_modify is changed
+
+
+- name: "Create the remote /home/guac/.vnc directory"
+  file:
+    path: /home/guac/.vnc 
+    mode: 0755
+    state: directory
+    owner: guac
+    group: guac
+
+- name: Configure vncpasswd
+  shell: "echo '{{ password }}' | vncpasswd -f > /home/guac/.vnc/passwd"
+  become: yes
+  become_user: guac
+
+- name: "Change the permission to 600 for /home/guac/.vnc/passwd file"
+  file:
+    path: /home/guac/.vnc/passwd
+    mode: 0600
+
+- name: "Start & enable the vncserver"
+  systemd:
+    state: started
+    daemon_reload: yes
+    name: vncserver@:1
+    enabled: True
+
+- name: Open vnc-server port
+  firewalld:
+    service: vnc-server
+    permanent: yes
+    state: enabled
+    immediate: yes
