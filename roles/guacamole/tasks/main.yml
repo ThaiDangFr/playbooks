@@ -188,7 +188,7 @@
     owner: guac
     group: guac
 
-- name: Configure vncpasswd
+- name: "Configure vncpasswd"
   shell: "echo '{{ password }}' | vncpasswd -f > /home/guac/.vnc/passwd"
   become: yes
   become_user: guac
@@ -198,6 +198,12 @@
     path: /home/guac/.vnc/passwd
     mode: 0600
 
+- name: "Correct xstartup file"
+  lineinfile:
+    path: /home/guac/.vnc/xstartup
+    state: absent
+    regexp: '^vncserver -kill'
+
 - name: "Start & enable the vncserver"
   systemd:
     state: started
@@ -205,7 +211,7 @@
     name: vncserver@:1
     enabled: True
 
-- name: Open vnc-server port
+- name: "Open vnc-server port"
   firewalld:
     service: vnc-server
     permanent: yes
