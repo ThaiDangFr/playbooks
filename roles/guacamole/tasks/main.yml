@@ -1,0 +1,100 @@
+- name: install nux-dextop
+  yum:
+    name: http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+    state: present
+
+- name: install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - epel-release
+    - lftp
+    - ksh
+    - libvncserver
+    - xorg-x11-fonts*
+    - tomcat
+    - tomcat-webapps
+    - cairo-devel
+    - libpng-devel
+    - uuid-devel
+    - freerdp-devel
+    - pango-devel
+    - libssh2-devel
+    - libvncserver-devel
+    - pulseaudio-libs-devel
+    - openssl-devel
+    - libvorbis-devel
+    - libjpeg-turbo-devel
+    - libwebp-devel
+    - ffmpeg-devel
+    - libtool
+
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: modify tomcat.conf
+  lineinfile:
+    path: /usr/share/tomcat/conf/tomcat.conf
+    regexp: '^JAVA_OPTS='
+    line: 'JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx512m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC"'
+
+- name: Start service tomcat, if not started
+  service:
+    name: tomcat
+    state: started
+    enabled: yes
+
+- name: Open tomcat port
+  firewalld:
+    port: 8080/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Add guac user
+  user:
+    name: guac
+
+- name: Check guacamole directory
+  file:
+    path: /home/guac/guacamole-server-1.0.0/
+    state: directory
+    owner: guac
+    group: guac
+  register: guacamole_dir
+
+- name: Untar guacamole-server
+  unarchive:
+    src: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.0.0/source/guacamole-server-1.0.0.tar.gz
+    dest: /home/guac
+    owner: guac
+    group: guac
+    remote_src: yes
+  when: guacamole_dir is changed
+  register: guacamole_untar
+  
+- name: Configure guacamole-server
+  shell: "autoreconf -fi && ./configure --with-init-dir=/etc/init.d && make"
+  args:
+    chdir: /home/guac/guacamole-server-1.0.0/
+  when: guacamole_untar is changed
+  register: guacamole_configure
+  become: yes
+  become_user: guac
+
+- name: Install guacd
+  make:
+    chdir: "/home/guac/guacamole-server-1.0.0"
+    target: install
+  become: yes
+  when: guacamole_configure is changed
+
+- name: Start service guacd, if not started
+  service:
+    name: guacd
+    state: started
+    enabled: yes
+
