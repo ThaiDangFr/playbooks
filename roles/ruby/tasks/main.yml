@@ -1,0 +1,25 @@
+- name: install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - git
+    - ruby
+    - ruby-devel
+    - nodejs
+    - postgresql-server
+    - postgresql-contrib
+    - postgresql-devel
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Add user {{ username }}
+  user:
+    name: {{ username }}
+    shell: /bin/bash
+    groups: wheel
+    append: yes
+
