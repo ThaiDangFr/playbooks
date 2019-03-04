@@ -1,0 +1,60 @@
+- name: install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - postfix
+    - mailx
+    - cyrus-sasl-plain
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^myhostname ='
+    line: 'myhostname = {{ inventory_hostname }}'
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^mydomain ='
+    line: 'mydomain = {{ inventory_hostname | regex_replace("^(?P<host>[^\.]+)\.(?P<domain>.+)","\g<domain>") }}'
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^myorigin ='
+    line: 'myorigin = $mydomain'
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^inet_interfaces ='
+    line: 'inet_interfaces = all'
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^inet_protocols ='
+    line: 'inet_protocols = all'
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^mydestination ='
+    line: 'mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain'
+
+- name: Modify main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^mynetworks ='
+    line: 'mynetworks = {{ hostvars[inventory_hostname]["ansible_default_ipv4"]["address"] | regex_replace("^(?P<ip>.+)\.(?P<last>.+)","\g<ip>.0") }}/24, 127.0.0.0/8'
+
+- name: Restart service postfix
+  service:
+    name: postfix
+    state: restarted
