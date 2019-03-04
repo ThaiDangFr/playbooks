@@ -33,6 +33,7 @@
     - firefox
     - fluxbox
     - xterm
+    - wget
 
 - name: Upgrade all packages
   yum:
@@ -44,6 +45,12 @@
     path: /usr/share/tomcat/conf/tomcat.conf
     regexp: '^JAVA_OPTS='
     line: 'JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx512m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC"'
+
+- name: Add GUACAMOLE_HOME
+  lineinfile:
+    path: /usr/share/tomcat/conf/tomcat.conf
+    regexp: '^GUACAMOLE_HOME='
+    line: 'GUACAMOLE_HOME="/etc/guacamole/"'
 
 - name: Start service tomcat, if not started
   service:

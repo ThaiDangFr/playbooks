@@ -5,10 +5,10 @@ Modify /etc/ansible/hosts :
 [production]
 yourserver.com
 
-[production:vars]
-username=xxx
-password=xxx
+vi ~/.bashrc
+export GUACUSR=xxx
+export GUACPWD=xxx
 
 launch:
-ansible-playbook  install_guacamole.yml
+./install_guacamole.sh
 ```
