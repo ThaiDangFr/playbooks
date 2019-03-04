@@ -12,3 +12,8 @@ export GUACPWD=xxx
 launch:
 ./install_guacamole.sh
 ```
+## Postfix installation
+```
+launch:
+./install_postfix.sh
+```
