@@ -25,5 +25,9 @@ while getopts ":u:h" opt; do
   esac
 done
 
+if [ $# -lt 1 ];then
+    usage
+    exit 1
+fi
 
 ansible-playbook -e "username=$RUBYUSR" install_ruby.yml
