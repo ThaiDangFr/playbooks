@@ -12,6 +12,14 @@
     - postgresql-devel
     - mlocate
     - python-psycopg2
+    - rubygem-execjs
+    - patch
+    - bison
+    - bzip2
+    - gcc-c++
+    - libffi-devel
+    - readline-devel
+    - sqlite-devel
 
 - name: Upgrade all packages
   yum:
@@ -90,4 +98,19 @@
   postgresql_db:
     name: "{{ username }}_production"
   become_user: postgres
+  become: true
+
+- name: Import rvm public key
+  shell: "curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -"
+  become_user: "{{ username }}"
+  become: true
+
+- name: Install rvm
+  shell: "curl -L get.rvm.io | bash -s stable"
+  become_user: "{{ username }}"
+  become: true
+
+- name: Install latest version of ruby
+  shell: "bash -l -c 'rvm use ruby --install --default'"
+  become_user: "{{ username }}"
   become: true
