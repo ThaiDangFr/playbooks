@@ -1,3 +1,12 @@
+- name: Add chrome repository
+  yum_repository:
+    name: google-chrome
+    description: google chrome repo
+    baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://dl-ssl.google.com/linux/linux_signing_key.pub
+
 - name: install packages
   yum:
     name: "{{ packages }}"
@@ -20,6 +29,8 @@
     - libffi-devel
     - readline-devel
     - sqlite-devel
+    - chromedriver
+    - google-chrome-stable
 
 - name: Upgrade all packages
   yum:
