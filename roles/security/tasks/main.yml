@@ -1,0 +1,13 @@
+- name: Install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - lynis
+
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+

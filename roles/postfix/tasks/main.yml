@@ -54,6 +54,12 @@
     regexp: '^mynetworks ='
     line: 'mynetworks = {{ hostvars[inventory_hostname]["ansible_default_ipv4"]["address"] | regex_replace("^(?P<ip>.+)\.(?P<last>.+)","\g<ip>.0") }}/24, 127.0.0.0/8'
 
+- name: Securing main.cf
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^smtpd_banner ='
+    line: 'smtpd_banner = $myhostname ESMTP'
+
 - name: Restart service postfix
   service:
     name: postfix
