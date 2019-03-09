@@ -1,9 +1,13 @@
 - name: Install packages
   yum:
     name: "{{ packages }}"
+    enablerepo: "epel-testing"
   vars:
     packages:
+    - epel-release
+    - whois
     - lynis
+#    - psad
 
 
 - name: Upgrade all packages
@@ -11,3 +15,32 @@
     name: '*'
     state: latest
 
+
+#- name: Modify email of psad.conf
+#  lineinfile:
+#    path: /etc/psad/psad.conf
+#    regexp: '^EMAIL_ADDRESSES'
+#    line: 'EMAIL_ADDRESSES             {{ email }};'
+
+
+#- name: Modify hostname of psad.conf
+#  lineinfile:
+#    path: /etc/psad/psad.conf
+#    regexp: '^HOSTNAME'
+#    line: 'HOSTNAME                    {{ ansible_hostname }};'
+
+
+#- name: Allow psad to modify iptables
+#  lineinfile:
+#    path: /etc/psad/psad.conf
+#    regexp: '^ENABLE_AUTO_IDS'
+#    line: 'ENABLE_AUTO_IDS             Y;'
+
+#- name: Update psad signature
+#  shell: "psad --sig-update"
+
+#- name: Restart service psad
+#  service:
+#    name: psad
+#    state: restarted
+#    enabled: yes
