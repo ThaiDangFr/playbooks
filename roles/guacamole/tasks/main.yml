@@ -58,12 +58,12 @@
     state: started
     enabled: yes
 
-- name: Open tomcat port
-  firewalld:
-    port: 8080/tcp
-    permanent: yes
-    state: enabled
-    immediate: yes
+#- name: Open tomcat port
+#  firewalld:
+#    port: 8080/tcp
+#    permanent: yes
+#    state: enabled
+#    immediate: yes
 
 - name: Add guac user
   user:
@@ -218,9 +218,9 @@
     name: vncserver@:1
     enabled: True
 
-- name: "Open vnc-server port"
-  firewalld:
-    service: vnc-server
-    permanent: yes
-    state: enabled
-    immediate: yes
+#- name: "Open vnc-server port"
+#  firewalld:
+#    service: vnc-server
+#    permanent: yes
+#    state: enabled
+#    immediate: yes

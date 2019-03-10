@@ -1,3 +1,12 @@
+- name: Uninstall firewalld
+  yum:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - firewalld
+    - firewalld-filesystem
+
 - name: Install packages
   yum:
     name: "{{ packages }}"
@@ -5,10 +14,22 @@
   vars:
     packages:
     - epel-release
+    - iptables-services
     - whois
     - lynis
-#    - psad
+    - psad
 
+- name: Start service iptables
+  service:
+    name: iptables
+    state: started
+    enabled: yes
+
+- name: Start service iptables6
+  service:
+    name: ip6tables
+    state: started
+    enabled: yes
 
 - name: Upgrade all packages
   yum:
@@ -16,31 +37,109 @@
     state: latest
 
 
-#- name: Modify email of psad.conf
-#  lineinfile:
-#    path: /etc/psad/psad.conf
-#    regexp: '^EMAIL_ADDRESSES'
-#    line: 'EMAIL_ADDRESSES             {{ email }};'
+- name: Open 8080 port
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    destination_port: 8080
+    jump: ACCEPT
+    rule_num: 2  
 
 
-#- name: Modify hostname of psad.conf
-#  lineinfile:
-#    path: /etc/psad/psad.conf
-#    regexp: '^HOSTNAME'
-#    line: 'HOSTNAME                    {{ ansible_hostname }};'
+- name: Update firewalld INPUT for psad
+  iptables:
+    action: insert
+    chain: INPUT
+    jump: LOG
+    rule_num: 5
+
+- name: Update firewalld FORWARD for psad
+  iptables:
+    action: insert
+    chain: FORWARD
+    jump: LOG
+    rule_num: 1
 
 
-#- name: Allow psad to modify iptables
-#  lineinfile:
-#    path: /etc/psad/psad.conf
-#    regexp: '^ENABLE_AUTO_IDS'
-#    line: 'ENABLE_AUTO_IDS             Y;'
+- name: Stop service psad
+  service:
+    name: psad
+    state: stopped
+    enabled: yes
 
-#- name: Update psad signature
-#  shell: "psad --sig-update"
 
-#- name: Restart service psad
-#  service:
-#    name: psad
-#    state: restarted
-#    enabled: yes
+- name: Modify email of psad.conf
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^EMAIL_ADDRESSES '
+    line: 'EMAIL_ADDRESSES             {{ email }};'
+
+
+- name: Modify hostname of psad.conf
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^HOSTNAME '
+    line: 'HOSTNAME                    {{ ansible_hostname }};'
+
+- name: Modify danger level
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^MIN_DANGER_LEVEL '
+    line: 'MIN_DANGER_LEVEL            1;'
+
+- name: Modify mail level
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^EMAIL_ALERT_DANGER_LEVEL '
+    line: 'EMAIL_ALERT_DANGER_LEVEL    4;'
+
+- name: Modify HOME_NET of psad.conf
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^HOME_NET '
+    line: 'HOME_NET                    NOT_USED;'
+
+
+######
+# default: N
+- name: psad ENABLE_AUTO_IDS
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^ENABLE_AUTO_IDS '
+    line: 'ENABLE_AUTO_IDS             Y;'
+
+# default: 5
+- name: psad AUTO_IDS_DANGER_LEVEL
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^AUTO_IDS_DANGER_LEVEL '
+    line: 'AUTO_IDS_DANGER_LEVEL       4;'
+
+- name: psad ENABLE_AUTO_IDS_EMAILS
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^ENABLE_AUTO_IDS_EMAILS '
+    line: 'ENABLE_AUTO_IDS_EMAILS       Y;'
+
+# default: 3600
+- name: psad AUTO_BLOCK_TIMEOUT
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^AUTO_BLOCK_TIMEOUT '
+    line: 'AUTO_BLOCK_TIMEOUT          3600;'
+
+
+#####
+- name: Start service psad
+  service:
+    name: psad
+    state: started
+
+- name: Update psad signature
+  shell: "psad --sig-update"
+
+- name: Restart service psad
+  service:
+    name: psad
+    state: restarted
