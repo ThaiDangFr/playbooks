@@ -41,8 +41,6 @@
   user:
     name: "{{ username }}"
     shell: /bin/bash
-    groups: wheel
-    append: yes
 
 - set_fact:
     skb: "{{ 99999999 | random | to_uuid | b64encode | lower }}"

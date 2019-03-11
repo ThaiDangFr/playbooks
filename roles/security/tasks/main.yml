@@ -143,3 +143,9 @@
   service:
     name: psad
     state: restarted
+
+- name: Modify logrotate.conf to compress logs
+  lineinfile:
+    path: /etc/logrotate.conf
+    regexp: '^compress'
+    line: 'compress'
