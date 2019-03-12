@@ -37,14 +37,14 @@
     state: latest
 
 
-- name: Open 8080 port
-  iptables:
-    action: insert
-    chain: INPUT
-    protocol: tcp
-    destination_port: 8080
-    jump: ACCEPT
-    rule_num: 2  
+#- name: Open 8080 port
+#  iptables:
+#    action: insert
+#    chain: INPUT
+#    protocol: tcp
+#    destination_port: 8080
+#    jump: ACCEPT
+#    rule_num: 2  
 
 
 - name: Update firewalld INPUT for psad
