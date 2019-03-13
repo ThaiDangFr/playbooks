@@ -9,7 +9,7 @@ server {
 
     # Turn on Passenger
     passenger_enabled on;
-    passenger_ruby /home/{{ username }}/.rvm/gems/ruby/wrappers/ruby;
+    passenger_ruby /home/{{ username }}/.rvm/gems/ruby-{{ ruby_version }}/wrappers/ruby;
 
     gzip on;
     gzip_vary on;

@@ -119,7 +119,7 @@
   become_user: "{{ username }}"
   become: true
 
-- name: Install latest version of ruby
-  shell: "bash -l -c 'rvm use ruby --install --default'"
+- name: Install {{ ruby_version }} version of ruby
+  shell: "bash -l -c 'rvm use {{ ruby_version }} --install --default'"
   become_user: "{{ username }}"
   become: true

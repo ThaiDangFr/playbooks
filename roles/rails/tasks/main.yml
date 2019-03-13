@@ -50,3 +50,10 @@
     rule_num: 2  
   when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length == 0
 
+- name: Create {{ project }}.conf
+  template:
+    src: project.conf.j2
+    dest: /etc/nginx/conf.d/{{ project }}.conf
+    owner: root
+    group: root
+    mode: 0644
