@@ -1,15 +1,11 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage $0 -u <rails user> -g <github url> -s <server name>" 1>&2
+  echo "Usage $0 -g <github url> -s <server name>" 1>&2
 } 
 
-while getopts ":u:g:h" opt; do
+while getopts ":g:s:h" opt; do
   case $opt in
-    u)
-      echo "-u was triggered, Parameter: $OPTARG" >&2
-      export RAILSUSR=$OPTARG
-      ;;
     g)
       echo "-g was triggered, Parameter: $OPTARG" >&2
       export GITHUB=$OPTARG
@@ -33,11 +29,12 @@ while getopts ":u:g:h" opt; do
   esac
 done
 
-if [ $# -lt 6 ];then
+if [ $# -lt 4 ];then
     usage
     exit 1
 fi
 
-export PROJECT=$(basename $GITHUB .git)
+export PROJECT=$(basename $GITHUB .git | awk '{print tolower($0)}')
+export RAILSUSR=$PROJECT
 
 ansible-playbook -e "username=$RAILSUSR github=$GITHUB project=$PROJECT servername=$SERVERNAME" install_rails.yml

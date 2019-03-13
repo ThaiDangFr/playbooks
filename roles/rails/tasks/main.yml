@@ -1,13 +1,10 @@
-- name: Add chrome repository
-  yum_repository:
-    name: google-chrome
-    description: google chrome repo
-    baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
-    enabled: yes
-    gpgcheck: yes
-    gpgkey: https://dl-ssl.google.com/linux/linux_signing_key.pub
+- name: Add passenger repo
+  get_url:
+    url: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+    dest: /etc/yum.repos.d/passenger.repo
+    mode: 0644    
 
-- name: install packages
+- name: Install packages
   yum:
     name: "{{ packages }}"
   vars:
@@ -20,6 +17,23 @@
     name: '*'
     state: latest
 
+- name: Find passenger_root
+  shell: "passenger-config --root"
+  register: passenger_root
+
+- name: Copy passenger.conf
+  template:
+    src: passenger.conf.j2
+    dest: /etc/nginx/conf.d/passenger.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Start service nginx, if not started
+  service:
+    name: nginx
+    state: started
+    enabled: yes
 
 - name: Check if firewalld package is not installed
   yum:
