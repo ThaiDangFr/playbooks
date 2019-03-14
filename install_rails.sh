@@ -41,4 +41,4 @@ fi
 export PROJECT=$(basename $GITHUB .git | awk '{print tolower($0)}')
 export RAILSUSR=$PROJECT
 
-ansible-playbook -e "username=$RAILSUSR github=$GITHUB project=$PROJECT servername=$SERVERNAME ruby_version=$RUBYVERSION" install_rails.yml
+ansible-playbook -e "username=$RAILSUSR github=$GITHUB project=$PROJECT server_name=$SERVERNAME ruby_version=$RUBYVERSION" install_rails.yml

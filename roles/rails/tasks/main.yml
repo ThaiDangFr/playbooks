@@ -11,11 +11,89 @@
     packages:
     - nginx
     - passenger
+    - passenger-devel
+    - postgresql-server
+    - postgresql-contrib
+    - postgresql-devel
 
 - name: Upgrade all packages
   yum:
     name: '*'
     state: latest
+
+
+- set_fact:
+    skb: "{{ 99999999 | random | to_uuid | b64encode | lower }}"
+  run_once: yes
+
+- debug:
+    msg: "{{ skb }}"
+
+- name: Add SECRET_KEY_BASE
+  lineinfile:
+    path: ~/.bashrc
+    regexp: '^export SECRET_KEY_BASE='
+    line: "export SECRET_KEY_BASE={{ skb }}"
+  become_user: "{{ username }}"
+  become: true
+
+- name: Check that postgresql is initialized
+  stat:
+    path: "/var/lib/pgsql/data/PG_VERSION"
+  register: pgdata_dir_version
+
+- name: Initialize postgresql
+  command: "postgresql-setup initdb"
+  when: not pgdata_dir_version.stat.exists
+
+- name: Modify pg_hba.conf
+  replace:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    regexp: '^host(.*)ident'
+    replace: 'host\1md5'
+
+- name: Start and enable postgresql
+  systemd:
+    state: started
+    name: postgresql
+    enabled: yes
+
+- name: Create user for postgresql
+  postgresql_user:
+    name: "{{ username }}"
+    role_attr_flags: CREATEDB,CREATEROLE
+  become_user: postgres
+  become: true
+  
+- name: Create db {{ username }}
+  postgresql_db:
+    name: "{{ username }}"
+    owner: "{{ username }}"
+  become_user: postgres
+  become: true
+
+#- name: Create db {{ username }}_development
+#  postgresql_db:
+#    name: "{{ username }}_development"
+#    owner: "{{ username }}"
+#  become_user: postgres
+#  become: true
+
+#- name: Create db {{ username }}_test
+#  postgresql_db:
+#    name: "{{ username }}_test"
+#    owner: "{{ username }}"
+#  become_user: postgres
+#  become: true
+
+- name: Create db {{ username }}_production
+  postgresql_db:
+    name: "{{ username }}_production"
+    owner: "{{ username }}"
+  become_user: postgres
+  become: true
+
+
 
 - name: Find passenger_root
   shell: "passenger-config --root"
@@ -57,3 +135,35 @@
     owner: root
     group: root
     mode: 0644
+
+- name: Retrieve project {{ project }} from git
+  git:
+    repo: "{{ github }}"
+    dest: "~/github/{{ project }}"
+    force: yes
+  become: true
+  become_user: "{{ username }}"
+
+
+- name: Init {{ project }}
+  script: init.sh
+  args:
+    chdir: "/home/{{ username }}/github/{{ project }}"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+
+- name: Change the group of user {{ username }}
+  user:
+    name: "{{ username }}"
+    group: nginx
+
+- name: Opening rx to group nginx for home directory
+  file:
+    path: "/home/{{ username }}"
+    mode: 0750

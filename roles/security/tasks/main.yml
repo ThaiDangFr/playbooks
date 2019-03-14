@@ -18,6 +18,14 @@
     - whois
     - lynis
     - psad
+    - ntp
+    - tree
+
+- name: Start service ntpd
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
 
 - name: Start service iptables
   service:
