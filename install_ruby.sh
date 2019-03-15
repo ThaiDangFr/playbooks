@@ -1,11 +1,15 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage $0 -u <ruby user> -v <ruby version>" 1>&2
+  echo "Usage $0 -u <ruby user> -v <ruby version> [-g <github project>]" 1>&2
 } 
 
-while getopts ":u:v:h" opt; do
+while getopts ":g:u:v:h" opt; do
   case $opt in
+    g)
+      echo "-g was triggered, Parameter: $OPTARG" >&2
+      export GITHUB=$OPTARG
+      ;;
     u)
       echo "-u was triggered, Parameter: $OPTARG" >&2
       export RUBYUSR=$OPTARG
@@ -36,4 +40,4 @@ fi
 
 export scriptpath=$(dirname $0)
 cd ${scriptpath}/ansible
-ansible-playbook -e "username=$RUBYUSR ruby_version=$RUBYVERSION" install_ruby.yml
+ansible-playbook -e "username=$RUBYUSR ruby_version=$RUBYVERSION github=$GITHUB" install_ruby.yml

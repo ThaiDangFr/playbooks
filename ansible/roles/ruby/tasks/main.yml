@@ -55,3 +55,14 @@
   shell: "bash -l -c 'rvm use {{ ruby_version }} --install --default'"
   become_user: "{{ username }}"
   become: true
+
+### GIT ###
+
+- name: Retrieve {{ github }}
+  git:
+    repo: "{{ github }}"
+    dest: "~/code"
+    force: yes
+  become: true
+  become_user: "{{ username }}"
+  when: github is defined

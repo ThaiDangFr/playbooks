@@ -1,5 +1,8 @@
 ### USER ###
 
+- name: Kill all process owned by {{ username }}
+  shell: pkill -u {{ username }} || echo
+
 - name: Remove user {{ username }}
   user:
     name: "{{ username }}"
