@@ -3,7 +3,7 @@ server {
     server_name {{ server_name }};
 
     # Tell Nginx and Passenger where your app's 'public' directory is
-    root /home/{{ username }}/github/{{ project }}/public;
+    root /home/{{ username }}/code/public;
 
     client_max_body_size 100m;
 

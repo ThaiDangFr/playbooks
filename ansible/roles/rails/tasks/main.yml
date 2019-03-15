@@ -22,6 +22,22 @@
     state: latest
 
 
+### USER RIGHTS ###
+
+- name: Change the group of user {{ username }}
+  user:
+    name: "{{ username }}"
+    group: nginx
+
+- name: Opening rx to group nginx for home directory
+  file:
+    path: "/home/{{ username }}"
+    mode: 0750
+
+
+
+### POSTGRESQL ###
+
 - set_fact:
     skb: "{{ 99999999 | random | to_uuid | b64encode | lower }}"
   run_once: yes
@@ -94,6 +110,8 @@
   become: true
 
 
+### PASSENGER ###
+
 
 - name: Find passenger_root
   shell: "passenger-config --root"
@@ -136,10 +154,13 @@
     group: root
     mode: 0644
 
+
+### GIT ###
+
 - name: Retrieve project {{ project }} from git
   git:
     repo: "{{ github }}"
-    dest: "~/github/{{ project }}"
+    dest: "~/code"
     force: yes
   become: true
   become_user: "{{ username }}"
@@ -148,7 +169,7 @@
 - name: Init {{ project }}
   script: init.sh
   args:
-    chdir: "/home/{{ username }}/github/{{ project }}"
+    chdir: "/home/{{ username }}/code"
   become: true
   become_user: "{{ username }}"
 
@@ -158,12 +179,3 @@
     state: restarted
     enabled: yes
 
-- name: Change the group of user {{ username }}
-  user:
-    name: "{{ username }}"
-    group: nginx
-
-- name: Opening rx to group nginx for home directory
-  file:
-    path: "/home/{{ username }}"
-    mode: 0750

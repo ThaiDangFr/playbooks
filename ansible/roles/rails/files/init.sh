@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-LOG_FILE=~/init-project.log
+LOG_FILE=~/code/log/init-project.log
 echo "$(date)"> $LOG_FILE 2>&1
 
 export RAILS_ENV=production 
