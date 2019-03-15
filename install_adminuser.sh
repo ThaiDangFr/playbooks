@@ -34,4 +34,7 @@ if [ $# -lt 1 ];then
     exit 1
 fi
 
+
+export scriptpath=$(dirname $0)
+cd ${scriptpath}/ansible
 ansible-playbook -e "username=$AUSERNAME password=$APASSWORD" install_adminuser.yml

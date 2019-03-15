@@ -34,4 +34,6 @@ if [ $# -lt 2 ];then
     exit 1
 fi
 
+export scriptpath=$(dirname $0)
+cd ${scriptpath}/ansible
 ansible-playbook -e "username=$RUBYUSR ruby_version=$RUBYVERSION" install_ruby.yml

@@ -1,2 +1,39 @@
 #!/bin/bash
-ansible-playbook -e "username=$GUACUSR password=$GUACPWD" install_guacamole.yml
+
+usage() {
+  echo "Usage $0 -u <username> -p <password>" 1>&2
+}
+
+while getopts ":u:p:h" opt; do
+  case $opt in
+    u)
+      echo "-u was triggered, Parameter: $OPTARG" >&2
+      export AUSERNAME=$OPTARG
+      ;;
+    p)
+      echo "-p was triggered, Parameter: $OPTARG" >&2
+      export APASSWORD=$OPTARG
+      ;;
+    h)
+      usage
+      exit 1
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ $# -lt 1 ];then
+    usage
+    exit 1
+fi
+
+export scriptpath=$(dirname $0)
+cd ${scriptpath}/ansible
+ansible-playbook -e "username=$AUSERNAME password=$APASSWORD" install_guacamole.yml
