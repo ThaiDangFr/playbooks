@@ -34,6 +34,16 @@
     path: "/home/{{ username }}"
     mode: 0750
 
+### Set RAILS_ENV=production ###
+
+- name: Set RAILS_ENV=production
+  lineinfile:
+    path: ~/.bashrc
+    regexp: '^export RAILS_ENV='
+    line: "export RAILS_ENV=production"
+  become_user: "{{ username }}"
+  become: true
+
 
 
 ### POSTGRESQL ###
