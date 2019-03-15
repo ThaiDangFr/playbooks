@@ -1,0 +1,60 @@
+### USER ###
+
+- name: Remove user {{ username }}
+  user:
+    name: "{{ username }}"
+    state: absent
+    remove: yes
+
+
+### POSTGRESQL ###
+
+- name: Delete db {{ username }}
+  postgresql_db:
+    name: "{{ username }}"
+    state: absent
+  become_user: postgres
+  become: true
+
+- name: Delete db {{ username }}_development
+  postgresql_db:
+    name: "{{ username }}_development"
+    state: absent
+  become_user: postgres
+  become: true
+
+- name: Delete db {{ username }}_test
+  postgresql_db:
+    name: "{{ username }}_test"
+    state: absent
+  become_user: postgres
+  become: true
+
+- name: Delete db {{ username }}_production
+  postgresql_db:
+    name: "{{ username }}_production"
+    state: absent
+  become_user: postgres
+  become: true
+
+- name: Delete postgresql user {{ username }}
+  postgresql_user:
+    name: "{{ username }}"
+    state: absent
+  become_user: postgres
+  become: true
+
+
+### PASSENGER ###
+
+- name: Delete {{ username }}.conf
+  file:
+    path: /etc/nginx/conf.d/{{ username }}.conf
+    state: absent
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+

@@ -38,9 +38,8 @@ if [ $# -lt 6 ];then
     exit 1
 fi
 
-export PROJECT=$(basename $GITHUB .git | awk '{print tolower($0)}')
-export RAILSUSR=$PROJECT
+export RAILSUSR=$(basename $GITHUB .git | awk '{print tolower($0)}')
 
 export scriptpath=$(dirname $0)
 cd ${scriptpath}/ansible
-ansible-playbook -e "username=$RAILSUSR github=$GITHUB project=$PROJECT server_name=$SERVERNAME ruby_version=$RUBYVERSION" install_rails.yml
+ansible-playbook -e "username=$RAILSUSR github=$GITHUB server_name=$SERVERNAME ruby_version=$RUBYVERSION" install_rails.yml

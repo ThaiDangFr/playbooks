@@ -1,0 +1,181 @@
+- name: Add passenger repo
+  get_url:
+    url: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+    dest: /etc/yum.repos.d/passenger.repo
+    mode: 0644    
+
+- name: Install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - nginx
+    - passenger
+    - passenger-devel
+    - postgresql-server
+    - postgresql-contrib
+    - postgresql-devel
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+
+### USER RIGHTS ###
+
+- name: Change the group of user {{ username }}
+  user:
+    name: "{{ username }}"
+    group: nginx
+
+- name: Opening rx to group nginx for home directory
+  file:
+    path: "/home/{{ username }}"
+    mode: 0750
+
+
+
+### POSTGRESQL ###
+
+- set_fact:
+    skb: "{{ 99999999 | random | to_uuid | b64encode | lower }}"
+  run_once: yes
+
+- debug:
+    msg: "{{ skb }}"
+
+- name: Add SECRET_KEY_BASE
+  lineinfile:
+    path: ~/.bashrc
+    regexp: '^export SECRET_KEY_BASE='
+    line: "export SECRET_KEY_BASE={{ skb }}"
+  become_user: "{{ username }}"
+  become: true
+
+- name: Check that postgresql is initialized
+  stat:
+    path: "/var/lib/pgsql/data/PG_VERSION"
+  register: pgdata_dir_version
+
+- name: Initialize postgresql
+  command: "postgresql-setup initdb"
+  when: not pgdata_dir_version.stat.exists
+
+- name: Modify pg_hba.conf
+  replace:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    regexp: '^host(.*)ident'
+    replace: 'host\1md5'
+
+- name: Start and enable postgresql
+  systemd:
+    state: started
+    name: postgresql
+    enabled: yes
+
+- name: Create user for postgresql
+  postgresql_user:
+    name: "{{ username }}"
+    role_attr_flags: CREATEDB,CREATEROLE
+  become_user: postgres
+  become: true
+  
+- name: Create db {{ username }}
+  postgresql_db:
+    name: "{{ username }}"
+    owner: "{{ username }}"
+  become_user: postgres
+  become: true
+
+#- name: Create db {{ username }}_development
+#  postgresql_db:
+#    name: "{{ username }}_development"
+#    owner: "{{ username }}"
+#  become_user: postgres
+#  become: true
+
+#- name: Create db {{ username }}_test
+#  postgresql_db:
+#    name: "{{ username }}_test"
+#    owner: "{{ username }}"
+#  become_user: postgres
+#  become: true
+
+- name: Create db {{ username }}_production
+  postgresql_db:
+    name: "{{ username }}_production"
+    owner: "{{ username }}"
+  become_user: postgres
+  become: true
+
+
+### PASSENGER ###
+
+
+- name: Find passenger_root
+  shell: "passenger-config --root"
+  register: passenger_root
+
+- name: Copy passenger.conf
+  template:
+    src: passenger.conf.j2
+    dest: /etc/nginx/conf.d/passenger.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Start service nginx, if not started
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Check if firewalld package is not installed
+  yum:
+    list=firewalld
+  register: yum_list
+
+- name: Open 80 port
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+    rule_num: 2  
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length == 0
+
+- name: Create {{ username }}.conf
+  template:
+    src: project.conf.j2
+    dest: /etc/nginx/conf.d/{{ username }}.conf
+    owner: root
+    group: root
+    mode: 0644
+
+
+### GIT ###
+
+- name: Retrieve {{ username }} project from git
+  git:
+    repo: "{{ github }}"
+    dest: "~/code"
+    force: yes
+  become: true
+  become_user: "{{ username }}"
+
+
+- name: Init {{ username }} project
+  script: init.sh
+  args:
+    chdir: "/home/{{ username }}/code"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+
