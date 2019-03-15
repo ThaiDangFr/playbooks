@@ -58,11 +58,11 @@
 
 ### GIT ###
 
-- name: Retrieve {{ github }}
+- name: Retrieve code from github {{ github }}
   git:
     repo: "{{ github }}"
     dest: "~/code"
     force: yes
   become: true
   become_user: "{{ username }}"
-  when: github is defined
+  when: github != ""
