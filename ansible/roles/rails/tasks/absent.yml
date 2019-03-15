@@ -52,9 +52,15 @@
     path: /etc/nginx/conf.d/{{ username }}.conf
     state: absent
 
+- name: Check if nginx package is installed
+  yum:
+    list=nginx
+  register: yum_list
+
 - name: Restart service nginx
   service:
     name: nginx
     state: restarted
     enabled: yes
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
