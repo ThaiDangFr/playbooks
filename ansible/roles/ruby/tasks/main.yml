@@ -39,12 +39,19 @@
     name: "{{ username }}"
     shell: /bin/bash
 
+- name: Create ansible tmp directory
+  file:
+    path: ~/.ansible/tmp
+    state: directory
+    mode: 0755
+  become_user: "{{ username }}"
+  become: true    
+
+
 - name: Import rvm public key
   shell: "curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -"
   become_user: "{{ username }}"
   become: true
-  args:
-    warn: no
 
 - name: Install rvm
   shell: "curl -L get.rvm.io | bash -s stable"
