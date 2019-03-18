@@ -155,5 +155,11 @@
 - name: Modify logrotate.conf to compress logs
   lineinfile:
     path: /etc/logrotate.conf
-    regexp: '^compress'
+    regexp: '^#compress'
     line: 'compress'
+
+- name: Modify logrotate.conf to rotate daily
+  lineinfile:
+    path: /etc/logrotate.conf
+    regexp: '^weekly'
+    line: 'daily'
