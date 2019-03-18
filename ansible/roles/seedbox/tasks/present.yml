@@ -1,0 +1,38 @@
+- name: install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - transmission-daemon
+    - nginx
+
+- name: Add user {{ username }}
+  user:
+    name: "{{ username }}"
+    shell: /bin/bash
+
+
+- name: Copy start-transmission.sh
+  template:
+    src: start-transmission.sh.j2
+    dest: ~/start-transmission.sh
+    mode: 0700
+  become: true
+  become_user: "{{ username }}"
+  
+- name: Copy stop-transmission.sh
+  template:
+    src: stop-transmission.sh.j2
+    dest: ~/stop-transmission.sh
+    mode: 0700
+  become: true
+  become_user: "{{ username }}"
+
+- name: Copy empty-dl.sh
+  template:
+    src: empty-dl.sh.j2
+    dest: ~/empty-dl.sh
+    mode: 0700
+  become: true
+  become_user: "{{ username }}"
+

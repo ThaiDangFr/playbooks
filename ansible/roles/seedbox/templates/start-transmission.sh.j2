@@ -1,0 +1,49 @@
+#!/bin/sh
+#https://trac.transmissionbt.com/wiki/EditConfigFiles
+PASSWORD="{{ password }}"
+PORT={{ http_port }}
+
+echo "Initializing ..."
+transmission-daemon -g ~/transmission-daemon -a '*' -b -e ~/transmission-daemon/transmission.log -p ${PORT} -t -u ${USER} -v ${PASSWORD} -o -y -m -ep -x ~/transmission-daemon/${USER}.pid
+sleep 5
+PID=$(cat ~/transmission-daemon/${USER}.pid)
+kill -9 $PID
+
+echo "Modifying config ..."
+cd ~/transmission-daemon/
+cat settings.json | awk -F\" -v HOME="$HOME" '
+{
+if($2 == "blocklist-url" ) {print "\"blocklist-url\": \"http://john.bitsurge.net/public/biglist.p2p.gz\","}
+else if($2 == "speed-limit-down") {print "\"speed-limit-down\": 5000,"}
+else if($2 == "speed-limit-down-enabled") {print "\"speed-limit-down-enabled\": true,"}
+else if($2 == "speed-limit-up") {print "\"speed-limit-up\": 1000,"}
+else if($2 == "speed-limit-up-enabled") {print "\"speed-limit-up-enabled\": true,"}
+else if($2 == "idle-seeding-limit") {print "\"idle-seeding-limit\": 5,"}
+else if($2 == "idle-seeding-limit-enabled") {print "\"idle-seeding-limit-enabled\": false,"}
+else if($2 == "ratio-limit") {print "\"ratio-limit\": 0,"}
+else if($2 == "ratio-limit-enabled") {print "\"ratio-limit-enabled\": false,"}
+else if($2 == "download-dir") {print "\"download-dir\": \"" HOME "/Downloads\","}
+else if($2 == "incomplete-dir") {print "\"incomplete-dir\": \"" HOME "/Incompletes\","}
+else if($2 == "incomplete-dir-enabled") {print "\"incomplete-dir-enabled\": true,"}
+else if($2 == "encryption") {print "\"encryption\": 1,"}
+else if($2 == "peer-port-random-on-start") {print "\"peer-port-random-on-start\": false,"}
+else if($2 == "peer-port") {print "\"peer-port\": {{ peer_port }},"}
+else if($2 == "pex-enabled") {print "\"pex-enabled\": false,"}
+else if($2 == "dht-enabled") {print "\"dht-enabled\": false,"}
+else if($2 == "lpd-enabled") {print "\"lpd-enabled\": false,"}
+else {print $0}
+}
+' > settings.json.tmp
+
+mv settings.json.tmp settings.json
+
+if [ ! -d $HOME/Downloads ];then
+   mkdir $HOME/Downloads
+fi
+
+if [ ! -d $HOME/Incompletes ];then
+   mkdir $HOME/Incompletes
+fi
+
+echo "Starting ..."
+transmission-daemon -g ~/transmission-daemon
