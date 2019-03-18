@@ -12,12 +12,18 @@
 
 ### POSTGRESQL ###
 
+- name: Check if postgresql-server package is installed
+  yum:
+    list=postgresql-server
+  register: yum_list
+
 - name: Delete db {{ username }}
   postgresql_db:
     name: "{{ username }}"
     state: absent
   become_user: postgres
   become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
 - name: Delete db {{ username }}_development
   postgresql_db:
@@ -25,6 +31,7 @@
     state: absent
   become_user: postgres
   become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
 - name: Delete db {{ username }}_test
   postgresql_db:
@@ -32,6 +39,7 @@
     state: absent
   become_user: postgres
   become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
 - name: Delete db {{ username }}_production
   postgresql_db:
@@ -39,6 +47,7 @@
     state: absent
   become_user: postgres
   become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
 - name: Delete postgresql user {{ username }}
   postgresql_user:
@@ -46,6 +55,7 @@
     state: absent
   become_user: postgres
   become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
 
 ### PASSENGER ###
@@ -67,3 +77,36 @@
     enabled: yes
   when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
+
+### CLEAN BINARIES IF ASKED ###
+- name: Remove nginx
+  yum:
+    name: nginx
+    state: absent
+  when: clean_binaries == "yes"
+
+- name: Remove passenger
+  yum:
+    name: passenger
+    state: absent
+  when: clean_binaries == "yes"
+
+- name: Remove postgresql
+  yum:
+    name: postgresql
+    state: absent
+  when: clean_binaries == "yes"
+
+- name: Check if firewalld package is installed
+  yum:
+    list=firewalld
+  register: yum_list
+
+- name: Close 80 port
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+    state: absent  
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length == 0 and clean_binaries == "yes"

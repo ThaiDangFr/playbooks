@@ -1,11 +1,15 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage $0 -u <username>" 1>&2
+  echo "Usage $0 -u <username> [-b : to clean binaries]" 1>&2
 } 
 
-while getopts ":u:h" opt; do
+while getopts "u:hb" opt; do
   case $opt in
+    b)
+      echo "-b was triggered" >&2
+      export CLEANBINARIES="yes"
+      ;;
     u)
       echo "-u was triggered, Parameter: $OPTARG" >&2
       export USERNAME=$OPTARG
@@ -32,4 +36,4 @@ fi
 
 export scriptpath=$(dirname $0)
 cd ${scriptpath}/ansible
-ansible-playbook -e "username=$USERNAME" uninstall_rails.yml
+ansible-playbook -e "username=$USERNAME clean_binaries=$CLEANBINARIES" uninstall_rails.yml
