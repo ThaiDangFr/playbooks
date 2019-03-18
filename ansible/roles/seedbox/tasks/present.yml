@@ -36,3 +36,26 @@
   become: true
   become_user: "{{ username }}"
 
+- name: Open {{ http_port }} port
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: "{{ item }}"
+    destination_port: "{{ http_port }}"
+    jump: ACCEPT
+    rule_num: 2
+  with_items:
+    - tcp
+    - udp
+
+- name: Open {{ peer_port }} port
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: "{{ item }}"
+    destination_port: "{{ peer_port }}"
+    jump: ACCEPT
+    rule_num: 2 
+  with_items:
+    - tcp
+    - udp
