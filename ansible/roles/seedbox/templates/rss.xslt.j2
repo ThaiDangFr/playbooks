@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output version="1.0" encoding="iso-8859-1"/>
     <xsl:template match="/">
-    <html>
-    <body>
-        <h3>Dafshabbat</h3>
-        <table border="0">
-        <tr bgcolor="#9acd32">
-            <th>name</th>
-            <th>size</th>
-            <th>date</th>
-        </tr>
+    
+    <rss version="2.0">
+    <channel>
+    <title>DL</title>
+    <description>See https://serverfault.com/questions/312796/custom-autoindex-pages-with-nginx</description>
+
         <xsl:for-each select="list/*">
         <xsl:sort select="mtime"/>
 
@@ -32,15 +30,12 @@
                 <xsl:value-of select="substring(@mtime,12,2)"/>:<xsl:value-of select="substring(@mtime,15,2)"/>:<xsl:value-of select="substring(@mtime,18,2)"/>
             </xsl:variable>
 
-        <tr>
-            <td><a href="{$name}"><xsl:value-of select="."/></a></td>
-            <td align="right"><xsl:value-of select="$size"/></td>
-            <td><xsl:value-of select="$date"/></td>
-        </tr>
-
+	<item><title><xsl:value-of select="."/></title><pubDate><xsl:value-of select="$date"/></pubDate><description>size is <xsl:value-of select="$size"/></description><link>http://{{ inventory_hostname }}/{{ username }}/<xsl:value-of select="."/></link></item>
+   
         </xsl:for-each>
-        </table>
-    </body>
-    </html>
+	
+    </channel>
+    </rss>
+
     </xsl:template>
 </xsl:stylesheet>
