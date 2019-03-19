@@ -5,6 +5,11 @@ server {
        location /{{ username }} {
        alias /home/{{ username }}/Downloads;
        autoindex on;
+       }
+
+       location /{{ username }}/rss {
+       alias /home/{{ username }}/Downloads;
+       autoindex on;
        autoindex_format xml;
        xslt_stylesheet /home/{{ username }}/rss.xslt;
        }
