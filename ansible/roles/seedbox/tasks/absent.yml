@@ -1,0 +1,39 @@
+- name: Uninstall packages
+  yum:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - transmission-daemon
+    - transmission-common
+    - nginx
+
+- name: Delete user {{ username }}
+  user:
+    name: "{{ username }}"
+    state: absent
+    remove: yes
+    shell: /bin/bash
+
+
+- name: Close {{ http_port }} port
+  iptables:
+    chain: INPUT
+    protocol: "{{ item }}"
+    destination_port: "{{ http_port }}"
+    jump: ACCEPT
+    state: absent
+  with_items:
+    - tcp
+    - udp
+
+- name: Close {{ peer_port }} port
+  iptables:
+    chain: INPUT
+    protocol: "{{ item }}"
+    destination_port: "{{ peer_port }}"
+    jump: ACCEPT
+    state: absent
+  with_items:
+    - tcp
+    - udp
