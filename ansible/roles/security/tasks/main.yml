@@ -20,6 +20,7 @@
     - psad
     - ntp
     - tree
+    - wget
 
 - name: Start service ntpd
   service:
@@ -44,30 +45,27 @@
     name: '*'
     state: latest
 
+- name: Find iptables INPUT position
+  shell: expr $(iptables -vnL INPUT --line-numbers | wc -l) - 2
+  register: ipt_posi
 
-#- name: Open 8080 port
-#  iptables:
-#    action: insert
-#    chain: INPUT
-#    protocol: tcp
-#    destination_port: 8080
-#    jump: ACCEPT
-#    rule_num: 2  
-
-
-- name: Update firewalld INPUT for psad
+- name: Update iptables INPUT for psad
   iptables:
     action: insert
     chain: INPUT
     jump: LOG
-    rule_num: 5
+    rule_num: "{{ ipt_posi.stdout }}"
 
-- name: Update firewalld FORWARD for psad
+- name: Find iptables FORWARD position
+  shell: expr $(iptables -vnL FORWARD --line-numbers | wc -l) - 3
+  register: ipt_posi
+
+- name: Update iptables FORWARD for psad
   iptables:
     action: insert
     chain: FORWARD
     jump: LOG
-    rule_num: 1
+    rule_num: "{{ ipt_posi.stdout }}"
 
 
 - name: Stop service psad

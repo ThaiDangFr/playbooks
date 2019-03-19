@@ -235,9 +235,29 @@
     name: vncserver@:1
     enabled: True
 
-#- name: "Open vnc-server port"
-#  firewalld:
-#    service: vnc-server
-#    permanent: yes
-#    state: enabled
-#    immediate: yes
+- name: Create bin dir
+  file:
+    path: ~/bin
+    state: directory
+  become_user: guac
+  become: True
+
+- name: Copy switchHome
+  copy:
+    src: switchHome.sh
+    dest: ~/bin/switchHome.sh
+    owner: guac
+    group: guac
+    mode: 0775
+  become_user: guac
+  become: True
+
+- name: Copy switchWork
+  copy:
+    src: switchWork.sh
+    dest: ~/bin/switchWork.sh
+    owner: guac
+    group: guac
+    mode: 0775
+  become_user: guac
+  become: True

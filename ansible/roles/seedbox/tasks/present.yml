@@ -9,8 +9,13 @@
 - name: Add user {{ username }}
   user:
     name: "{{ username }}"
+    group: nginx
     shell: /bin/bash
 
+- name: Opening rx to group nginx for home directory
+  file:
+    path: "/home/{{ username }}"
+    mode: 0750
 
 - name: Copy start-transmission.sh
   template:
@@ -28,10 +33,10 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Copy empty-dl.sh
+- name: Copy rss.xslt
   template:
-    src: empty-dl.sh.j2
-    dest: ~/empty-dl.sh
+    src: rss.xslt.j2
+    dest: ~/rss.xslt
     mode: 0700
   become: true
   become_user: "{{ username }}"
@@ -59,3 +64,30 @@
   with_items:
     - tcp
     - udp
+
+- name: Start transmission
+  shell: "~/start-transmission.sh"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Open 80 port
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+    rule_num: 2 
+
+- name: Create nginx {{ username }}.conf
+  template:
+    src: nginxinc.conf.j2
+    dest: /etc/nginx/conf.d/{{ username }}.conf
+    mode: 0644
+
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

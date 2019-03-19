@@ -3,6 +3,11 @@
 PASSWORD="{{ password }}"
 PORT={{ http_port }}
 
+if [ -f  ~/transmission-daemon/${USER}.pid ]; then
+	echo "pid file exists, already started"
+	exit 0
+fi
+
 echo "Initializing ..."
 transmission-daemon -g ~/transmission-daemon -a '*' -b -e ~/transmission-daemon/transmission.log -p ${PORT} -t -u ${USER} -v ${PASSWORD} -o -y -m -ep -x ~/transmission-daemon/${USER}.pid
 sleep 5

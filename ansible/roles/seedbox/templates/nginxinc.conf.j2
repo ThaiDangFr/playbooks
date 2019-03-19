@@ -1,0 +1,11 @@
+server {
+       listen 80;
+       server_name {{ inventory_hostname }};
+
+       location /{{ username }} {
+       alias /home/{{ username }}/Downloads;
+       autoindex on;
+       autoindex_format xml;
+       xslt_stylesheet /home/{{ username }}/rss.xslt;
+       }
+}
