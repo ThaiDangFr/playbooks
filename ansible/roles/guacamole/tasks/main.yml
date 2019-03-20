@@ -34,6 +34,7 @@
     - fluxbox
     - xterm
     - wget
+    - unzip
 
 - name: Upgrade all packages
   yum:
