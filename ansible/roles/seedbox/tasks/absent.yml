@@ -1,20 +1,40 @@
-- name: Uninstall packages
-  yum:
-    name: "{{ packages }}"
+- name: Check {{ username }} directory
+  stat:
+    path: "/home/{{ username }}/stop-transmission.sh"
+  register: udir
+
+- name: Stop transmission
+  shell: "~/stop-transmission.sh"
+  become: true
+  become_user: "{{ username }}"
+  when: udir.stat.exists == true
+
+
+- name: Find a uuid of an external disk
+  shell: "blkid | grep sdb1 | awk '{print $2}' | sed 's/\"//g'"
+  register: uuid
+
+
+- name: Remove /home/{{ username }} with external disk {{ uuid.stdout }}
+  mount:
+    path: "/home/{{ username }}"
+    src: "{{ uuid.stdout }}"
+    fstype: xfs
     state: absent
-  vars:
-    packages:
-    - transmission-daemon
-    - transmission-common
-    - nginx
+    opts: nofail
+  when: uuid.stdout != ""
+
 
 - name: Delete user {{ username }}
   user:
     name: "{{ username }}"
     state: absent
-    remove: yes
     shell: /bin/bash
 
+- name: Remove /home/{{ username }}  directory
+  file:
+    path: "/home/{{ username }}"
+    state: absent
 
 - name: Close {{ http_port }} port
   iptables:
@@ -37,3 +57,22 @@
   with_items:
     - tcp
     - udp
+
+- name: Close 80 port
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+    state: absent
+
+
+- name: Uninstall packages
+  yum:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - transmission-daemon
+    - transmission-common
+    - nginx
