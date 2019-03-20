@@ -65,6 +65,47 @@
     - tcp
     - udp
 
+- name: Stop transmission
+  shell: "~/stop-transmission.sh"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Check Downloads directory
+  stat:
+    path: "~/Downloads"
+  become: true
+  become_user: "{{ username }}"
+  register: downloads
+
+- name: Create Downloads directory
+  file:
+    path: "~/Downloads"
+    state: directory
+    mode: 0775
+  become: true
+  become_user: "{{ username }}"
+  when: downloads.stat.exists == false
+  
+
+- name: Find a uuid of an external disk
+  shell: "blkid | grep sdb1 | awk '{print $2}' | sed 's/\"//g'"
+  register: uuid
+
+- name: Add {{ uuid.stdout }} to fstab
+  mount:
+    path: "/home/{{ username }}/Downloads"
+    src: "{{ uuid.stdout }}"
+    fstype: xfs
+    state: mounted
+    opts: nofail
+
+- name: Chown Downloads to {{ username }}:nginx
+  file:
+    path: "/home/{{ username }}/Downloads"
+    mode: 0775
+    owner: "{{ username }}"
+    group: nginx
+
 - name: Start transmission
   shell: "~/start-transmission.sh"
   become: true
@@ -91,3 +132,7 @@
     name: nginx
     state: restarted
     enabled: yes
+
+
+
+  
