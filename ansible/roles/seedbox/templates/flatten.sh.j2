@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd ~/Downloads
-find . -mindepth 2 -type f -name "*.mkv" -exec mv {} . \;
-find . -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} \;
+find . -mindepth 2 -type f -name "*.mkv" -exec ln -sf {} . \;
+#find . -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} \;
