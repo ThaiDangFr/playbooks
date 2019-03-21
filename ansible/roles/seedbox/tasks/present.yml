@@ -59,14 +59,6 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Copy flatten.sh
-  template:
-    src: flatten.sh.j2
-    dest: ~/flatten.sh
-    mode: 0700
-  become: true
-  become_user: "{{ username }}"
-
 - name: Copy rss.xslt
   template:
     src: rss.xslt.j2

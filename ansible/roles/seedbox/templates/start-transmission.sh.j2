@@ -36,8 +36,6 @@ else if($2 == "peer-port") {print "\"peer-port\": {{ peer_port }},"}
 else if($2 == "pex-enabled") {print "\"pex-enabled\": false,"}
 else if($2 == "dht-enabled") {print "\"dht-enabled\": false,"}
 else if($2 == "lpd-enabled") {print "\"lpd-enabled\": false,"}
-else if($2 == "script-torrent-done-filename") {print "\"script-torrent-done-filename\": \"/home/{{ username }}/flatten.sh\","}
-else if($2 == "script-torrent-done-enabled") {print "\"script-torrent-done-enabled\": true,"}
 else {print $0}
 }
 ' > settings.json.tmp
