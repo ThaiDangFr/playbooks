@@ -5,6 +5,11 @@
     packages:
     - transmission-daemon
     - nginx
+    - git
+    - ruby
+    - rubygem-sinatra
+    - jq
+    - moreutils
 
 - name: Check {{ username }} directory
   stat:
@@ -117,6 +122,28 @@
     dest: /etc/nginx/conf.d/{{ username }}.conf
     mode: 0644
 
+
+- name: Download dir2rss from git
+  git:
+    repo: "https://github.com/ThaiDangFr/dir2rss.git"
+    dest: "~/dir2rss"
+    force: yes
+  become: true
+  become_user: "{{ username }}"
+
+- name: Configure dir2rss
+  shell: "jq '.directory = \"/home/{{ username }}/Downloads\"' sinatra.json | sponge sinatra.json"
+  args:
+    chdir: ~/dir2rss
+  become: true
+  become_user: "{{ username }}"
+
+- name: Configure dir2rss
+  shell: "jq '.baseurl = \"http://{{ inventory_hostname }}/{{ username }}\"' sinatra.json | sponge sinatra.json"
+  args:
+    chdir: ~/dir2rss
+  become: true
+  become_user: "{{ username }}"
 
 - name: Restart service nginx
   service:
