@@ -64,13 +64,13 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Copy rss.xslt
-  template:
-    src: rss.xslt.j2
-    dest: ~/rss.xslt
-    mode: 0700
-  become: true
-  become_user: "{{ username }}"
+#- name: Copy rss.xslt
+#  template:
+#    src: rss.xslt.j2
+#    dest: ~/rss.xslt
+#    mode: 0700
+#  become: true
+#  become_user: "{{ username }}"
 
 - name: Open {{ http_port }} port
   iptables:
@@ -132,14 +132,28 @@
   become_user: "{{ username }}"
 
 - name: Configure dir2rss
-  shell: "jq '.directory = \"/home/{{ username }}/Downloads\"' sinatra.json | sponge sinatra.json"
+  shell: "jq '.directory = \"/home/{{ username }}/Downloads\"' web.json | sponge web.json"
   args:
     chdir: ~/dir2rss
   become: true
   become_user: "{{ username }}"
 
 - name: Configure dir2rss
-  shell: "jq '.baseurl = \"http://{{ inventory_hostname }}/{{ username }}\"' sinatra.json | sponge sinatra.json"
+  shell: "jq '.baseurl = \"http://{{ inventory_hostname }}/{{ username }}\"' web.json | sponge web.json"
+  args:
+    chdir: ~/dir2rss
+  become: true
+  become_user: "{{ username }}"
+
+- name: Stop dir2rss
+  shell: "./stop.sh"
+  args:
+    chdir: ~/dir2rss
+  become: true
+  become_user: "{{ username }}"
+
+- name: Start dir2rss
+  shell: "./start.sh"
   args:
     chdir: ~/dir2rss
   become: true
