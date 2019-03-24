@@ -36,7 +36,6 @@
     opts: nofail
   when: uuid.stdout != ""
 
-
 - name: Add user {{ username }}
   user:
     name: "{{ username }}"
@@ -47,6 +46,14 @@
   file:
     path: "/home/{{ username }}"
     mode: 0750
+
+- name: Copy seedbox-settings.json
+  template:
+    src: seedbox-settings.json.j2
+    dest: ~/seedbox-settings.json
+    mode: 0700
+  become: true
+  become_user: "{{ username }}"
 
 - name: Copy start-transmission.sh
   template:
@@ -101,12 +108,10 @@
   become: true
   become_user: "{{ username }}"
 
-
 - name: Start transmission
   shell: "~/start-transmission.sh"
   become: true
   become_user: "{{ username }}"
-
 
 - name: Open 80 port
   iptables:
@@ -122,7 +127,6 @@
     src: nginxinc.conf.j2
     dest: /etc/nginx/conf.d/{{ username }}.conf
     mode: 0644
-
 
 - name: Download dir2rss from git
   git:
@@ -165,7 +169,6 @@
     name: nginx
     state: restarted
     enabled: yes
-
 
 
   

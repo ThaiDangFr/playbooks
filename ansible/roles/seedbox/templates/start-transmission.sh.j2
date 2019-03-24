@@ -1,17 +1,20 @@
-#!/bin/sh
+#!/bin/bash
 #https://trac.transmissionbt.com/wiki/EditConfigFiles
-PASSWORD="{{ password }}"
-PORT={{ http_port }}
+export scriptpath=$(realpath -s $(dirname $0))
+cd ${scriptpath}
+PASSWORD="$(jq '.password' seedbox-settings.json)"
+PORT="$(jq '.http_port' seedbox-settings.json)"
+USERNAME="$(jq '.username' seedbox-settings.json)"
 
-if [ -f  ~/transmission-daemon/${USER}.pid ]; then
+if [ -f  ~/transmission-daemon/${USERNAME}.pid ]; then
 	echo "pid file exists, already started"
 	exit 0
 fi
 
 echo "Initializing ..."
-transmission-daemon -g ~/transmission-daemon -a '*' -b -e ~/transmission-daemon/transmission.log -p ${PORT} -t -u ${USER} -v ${PASSWORD} -o -y -m -ep -x ~/transmission-daemon/${USER}.pid
+transmission-daemon -g ~/transmission-daemon -a '*' -b -e ~/transmission-daemon/transmission.log -p ${PORT} -t -u ${USERNAME} -v ${PASSWORD} -o -y -m -ep -x ~/transmission-daemon/${USERNAME}.pid
 sleep 5
-PID=$(cat ~/transmission-daemon/${USER}.pid)
+PID=$(cat ~/transmission-daemon/${USERNAME}.pid)
 kill -9 $PID
 
 echo "Modifying config ..."
@@ -57,4 +60,4 @@ transmission-daemon -g ~/transmission-daemon
 sleep 5
 
 echo "Updating blocklist"
-transmission-remote localhost:${PORT} -n ${USER}:${PASSWORD} --blocklist-update
+transmission-remote localhost:${PORT} -n ${USERNAME}:${PASSWORD} --blocklist-update

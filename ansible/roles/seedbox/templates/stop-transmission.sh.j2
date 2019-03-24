@@ -1,4 +1,13 @@
-#!/bin/sh
-PID=$(cat ~/transmission-daemon/${USER}.pid)
-kill -9 $PID
-rm -f ~/transmission-daemon/${USER}.pid
+#!/bin/bash
+export scriptpath=$(realpath -s $(dirname $0))
+cd ${scriptpath}
+PASSWORD="$(jq '.password' seedbox-settings.json)"
+PORT="$(jq '.http_port' seedbox-settings.json)"
+USERNAME="$(jq '.username' seedbox-settings.json)"
+
+echo "Stopping transmission"
+transmission-remote localhost:${PORT} -n ${USERNAME}:${PASSWORD} --exit
+
+#PID=$(cat ~/transmission-daemon/${USERNAME}.pid)
+#kill -9 $PID
+#rm -f ~/transmission-daemon/${USERNAME}.pid

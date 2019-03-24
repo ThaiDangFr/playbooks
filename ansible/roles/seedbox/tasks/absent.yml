@@ -1,19 +1,28 @@
-- name: Check {{ username }} directory
-  stat:
-    path: "/home/{{ username }}/stop-transmission.sh"
-  register: udir
-
 - name: Stop transmission
   shell: "~/stop-transmission.sh"
   become: true
   become_user: "{{ username }}"
-  when: udir.stat.exists == true
 
+- name: Stop dir2rss
+  shell: "~/dir2rss/stop.sh"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Find http_port
+  shell: "jq '.http_port' ~/seedbox-settings.json"
+  become: true
+  become_user: "{{ username }}"
+  register: http_port
+
+- name: Find peer_port
+  shell: "jq '.peer_port' ~/seedbox-settings.json"
+  become: true
+  become_user: "{{ username }}"
+  register: peer_port
 
 - name: Find a uuid of an external disk
   shell: "blkid | grep sdb1 | awk '{print $2}' | sed 's/\"//g'"
   register: uuid
-
 
 - name: Remove /home/{{ username }} with external disk {{ uuid.stdout }}
   mount:
@@ -23,7 +32,6 @@
     state: absent
     opts: nofail
   when: uuid.stdout != ""
-
 
 - name: Delete user {{ username }}
   user:
@@ -36,22 +44,22 @@
     path: "/home/{{ username }}"
     state: absent
 
-- name: Close {{ http_port }} port
+- name: Close {{ http_port.stdout }} port
   iptables:
     chain: INPUT
     protocol: "{{ item }}"
-    destination_port: "{{ http_port }}"
+    destination_port: "{{ http_port.stdout }}"
     jump: ACCEPT
     state: absent
   with_items:
     - tcp
     - udp
 
-- name: Close {{ peer_port }} port
+- name: Close {{ peer_port.stdout }} port
   iptables:
     chain: INPUT
     protocol: "{{ item }}"
-    destination_port: "{{ peer_port }}"
+    destination_port: "{{ peer_port.stdout }}"
     jump: ACCEPT
     state: absent
   with_items:
@@ -65,7 +73,6 @@
     destination_port: 80
     jump: ACCEPT
     state: absent
-
 
 - name: Uninstall packages
   yum:
