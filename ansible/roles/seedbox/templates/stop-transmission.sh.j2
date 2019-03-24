@@ -1,9 +1,9 @@
 #!/bin/bash
 export scriptpath=$(realpath -s $(dirname $0))
 cd ${scriptpath}
-PASSWORD="$(jq '.password' seedbox-settings.json)"
-PORT="$(jq '.http_port' seedbox-settings.json)"
-USERNAME="$(jq '.username' seedbox-settings.json)"
+PASSWORD="$(jq -r '.password' seedbox-settings.json)"
+PORT="$(jq -r '.http_port' seedbox-settings.json)"
+USERNAME="$(jq -r '.username' seedbox-settings.json)"
 
 echo "Stopping transmission"
 transmission-remote localhost:${PORT} -n ${USERNAME}:${PASSWORD} --exit

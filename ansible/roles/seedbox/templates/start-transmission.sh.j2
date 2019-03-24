@@ -2,9 +2,9 @@
 #https://trac.transmissionbt.com/wiki/EditConfigFiles
 export scriptpath=$(realpath -s $(dirname $0))
 cd ${scriptpath}
-PASSWORD="$(jq '.password' seedbox-settings.json)"
-PORT="$(jq '.http_port' seedbox-settings.json)"
-USERNAME="$(jq '.username' seedbox-settings.json)"
+PASSWORD="$(jq -r '.password' seedbox-settings.json)"
+PORT="$(jq -r '.http_port' seedbox-settings.json)"
+USERNAME="$(jq -r '.username' seedbox-settings.json)"
 
 if [ -f  ~/transmission-daemon/${USERNAME}.pid ]; then
 	echo "pid file exists, already started"
