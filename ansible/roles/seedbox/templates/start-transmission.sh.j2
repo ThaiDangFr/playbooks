@@ -19,6 +19,7 @@ cd ~/transmission-daemon/
 cat settings.json | awk -F\" -v HOME="$HOME" '
 {
 if($2 == "blocklist-url" ) {print "\"blocklist-url\": \"http://john.bitsurge.net/public/biglist.p2p.gz\","}
+else if($2 == "blocklist-enabled") {print "\"blocklist-enabled\": true,"}
 else if($2 == "speed-limit-down") {print "\"speed-limit-down\": 5000,"}
 else if($2 == "speed-limit-down-enabled") {print "\"speed-limit-down-enabled\": true,"}
 else if($2 == "speed-limit-up") {print "\"speed-limit-up\": 1000,"}
@@ -52,3 +53,8 @@ fi
 
 echo "Starting ..."
 transmission-daemon -g ~/transmission-daemon
+
+sleep 5
+
+echo "Updating blocklist"
+transmission-remote localhost:${PORT} -n ${USER}:${PASSWORD} --blocklist-update
