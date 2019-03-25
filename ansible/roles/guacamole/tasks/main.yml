@@ -36,6 +36,7 @@
     - wget
     - unzip
     - xorg-x11-apps
+    - ImageMagick
 
 - name: Upgrade all packages
   yum:
