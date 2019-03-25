@@ -35,6 +35,7 @@
     - xterm
     - wget
     - unzip
+    - xorg-x11-apps
 
 - name: Upgrade all packages
   yum:
@@ -260,5 +261,39 @@
     owner: guac
     group: guac
     mode: 0775
+  become_user: guac
+  become: True
+
+- name: Copy wallpaper
+  copy:
+    src: wallpaper.jpg
+    dest: ~/.fluxbox/wallpaper.jpg
+    owner: guac
+    group: guac
+    mode: 0664
+  become_user: guac
+  become: True
+
+- name: Modify fluxbox overlay aspect
+  lineinfile:
+    path: ~/.fluxbox/overlay
+    regexp: '^background:'
+    line: 'background: aspect'
+  become_user: guac
+  become: True
+
+- name: Modify fluxbox overlay pixmap
+  lineinfile:
+    path: ~/.fluxbox/overlay
+    regexp: '^background.pixmap:'
+    line: 'background.pixmap: ~/.fluxbox/wallpaper.jpg'
+  become_user: guac
+  become: True
+
+- name: Modify fluxbox init
+  lineinfile:
+    path: ~/.fluxbox/init
+    regexp: '^session.styleOverlay:'
+    line: 'session.styleOverlay:   /home/guac/.fluxbox/overlay'
   become_user: guac
   become: True
