@@ -71,4 +71,22 @@
     name: ep_adminpads
     path: /home/etherpad/etherpad-lite
   become: true
-  become_user: etherpad  
+  become_user: etherpad
+
+- name: Restart service etherpad-lite
+  service:
+    name: etherpad-lite
+    state: restarted
+    enabled: yes
+
+- name: Create nginx etherpad.conf
+  template:
+    src: nginxinc.conf.j2
+    dest: /etc/nginx/conf.d/etherpad.conf
+    mode: 0644
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
