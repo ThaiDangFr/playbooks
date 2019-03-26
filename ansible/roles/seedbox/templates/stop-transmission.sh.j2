@@ -7,6 +7,10 @@ USERNAME="$(jq -r '.username' seedbox-settings.json)"
 
 echo "Stopping transmission"
 transmission-remote localhost:${PORT} -n ${USERNAME}:${PASSWORD} --exit
+if [ $? -ne 0 ];then
+    echo "Cannot stop"
+    exit 0
+fi
 
 #PID=$(cat ~/transmission-daemon/${USERNAME}.pid)
 #kill -9 $PID

@@ -1,0 +1,74 @@
+- name: Add passenger repo
+  get_url:
+    url: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+    dest: /etc/yum.repos.d/passenger.repo
+    mode: 0644
+
+- name: Install packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - nginx
+    - git
+    - nodejs
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Add user etherpad
+  user:
+    name: etherpad
+    group: nginx
+    shell: /bin/bash
+
+- name: Opening rx to group nginx for home directory
+  file:
+    path: "/home/etherpad"
+    mode: 0750
+
+- name: Download etherpad-lite from git
+  git:
+    repo: "https://github.com/ether/etherpad-lite.git"
+    dest: "~/etherpad-lite"
+    version: master
+    force: yes
+  become: true
+  become_user: etherpad
+
+- name: Create etherpad-lite.service
+  template:
+    src: etherpad-lite.service.j2
+    dest: /etc/systemd/system/etherpad-lite.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create settings.json
+  template:
+    src: settings.json.j2
+    dest: ~/etherpad-lite/settings.json
+    mode: 0644
+  become: true
+  become_user: etherpad
+
+- name: Install dependency
+  shell: "~/etherpad-lite/bin/installDeps.sh"
+  become: true
+  become_user: etherpad
+
+- name: Install sqlite3
+  npm:
+    name: sqlite3
+    path: /home/etherpad/etherpad-lite
+  become: true
+  become_user: etherpad  
+
+- name: Install adminpads
+  npm:
+    name: ep_adminpads
+    path: /home/etherpad/etherpad-lite
+  become: true
+  become_user: etherpad  
