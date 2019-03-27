@@ -18,4 +18,7 @@ rails installation:
 
 seedbox installation:
 ./install_seedbox.sh -u <username> -p <password> -t <http port> -e <peer port>
+
+etherpad installation:
+./install_etherpad.sh -u <admin username> -p <admin password> -s <server name>
 ```
