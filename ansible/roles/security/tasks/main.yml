@@ -74,20 +74,17 @@
     jump: LOG
     rule_num: "{{ ipt_posi.stdout }}"
 
-
 - name: Stop service psad
   service:
     name: psad
     state: stopped
     enabled: yes
 
-
 - name: Modify email of psad.conf
   lineinfile:
     path: /etc/psad/psad.conf
     regexp: '^EMAIL_ADDRESSES '
     line: 'EMAIL_ADDRESSES             {{ email }};'
-
 
 - name: Modify hostname of psad.conf
   lineinfile:
@@ -178,3 +175,15 @@
     destination_port: 80
     jump: ACCEPT
     rule_num: 2  
+
+- name: Create nginx 0securenginx.conf
+  template:
+    src: 0securenginx.conf.j2
+    dest: /etc/nginx/conf.d/0securenginx.conf
+    mode: 0644
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
