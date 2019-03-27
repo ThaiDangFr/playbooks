@@ -65,26 +65,13 @@
     path: /etc/nginx/conf.d/{{ username }}.conf
     state: absent
 
-- name: Check if nginx package is installed
-  yum:
-    list=nginx
-  register: yum_list
-
 - name: Restart service nginx
   service:
     name: nginx
     state: restarted
     enabled: yes
-  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
-
 
 ### CLEAN BINARIES IF ASKED ###
-- name: Remove nginx
-  yum:
-    name: nginx
-    state: absent
-  when: clean_binaries == "yes"
-
 - name: Remove passenger
   yum:
     name: passenger
@@ -96,17 +83,3 @@
     name: postgresql
     state: absent
   when: clean_binaries == "yes"
-
-- name: Check if firewalld package is installed
-  yum:
-    list=firewalld
-  register: yum_list
-
-- name: Close 80 port
-  iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: 80
-    jump: ACCEPT
-    state: absent  
-  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length == 0 and clean_binaries == "yes"

@@ -1,3 +1,9 @@
+- name: Add passenger repo
+  get_url:
+    url: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+    dest: /etc/yum.repos.d/passenger.repo
+    mode: 0644
+
 - name: Uninstall firewalld
   yum:
     name: "{{ packages }}"
@@ -21,6 +27,7 @@
     - ntp
     - tree
     - wget
+    - nginx
 
 - name: Start service ntpd
   service:
@@ -161,3 +168,13 @@
     path: /etc/logrotate.conf
     regexp: '^weekly'
     line: 'daily'
+
+### securing nginx ###
+- name: Open 80 port
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+    rule_num: 2  

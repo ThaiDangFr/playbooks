@@ -1,15 +1,8 @@
-- name: Add passenger repo
-  get_url:
-    url: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
-    dest: /etc/yum.repos.d/passenger.repo
-    mode: 0644
-
 - name: Install packages
   yum:
     name: "{{ packages }}"
   vars:
     packages:
-    - nginx
     - git
     - nodejs
 
@@ -24,10 +17,10 @@
     group: nginx
     shell: /bin/bash
 
-- name: Opening rx to group nginx for home directory
+- name: Securing home directory
   file:
     path: "/home/etherpad"
-    mode: 0750
+    mode: 0700
 
 - name: Download etherpad-lite from git
   git:

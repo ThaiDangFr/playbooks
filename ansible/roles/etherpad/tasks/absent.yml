@@ -1,0 +1,27 @@
+- name: Stop service etherpad-lite
+  service:
+    name: etherpad-lite
+    state: stopped
+    enabled: no
+
+- name: Remove etherpad-lite.service
+  file:
+    path: /etc/systemd/system/etherpad-lite.service
+    state: absent
+
+- name: Remove nginx etherpad.conf
+  file:
+    path: /etc/nginx/conf.d/etherpad.conf
+    state: absent
+
+- name: Remove user etherpad
+  user:
+    name: etherpad
+    state: absent
+    remove: yes
+
+
+
+
+
+

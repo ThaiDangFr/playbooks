@@ -1,16 +1,9 @@
-- name: Add passenger repo to have same nginx version than rails playbook
-  get_url:
-    url: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
-    dest: /etc/yum.repos.d/passenger.repo
-    mode: 0644
-
 - name: install packages
   yum:
     name: "{{ packages }}"
   vars:
     packages:
     - transmission-daemon
-    - nginx
     - git
     - ruby
     - rubygem-sinatra
@@ -118,15 +111,6 @@
   shell: "~/start-transmission.sh"
   become: true
   become_user: "{{ username }}"
-
-- name: Open 80 port
-  iptables:
-    action: insert
-    chain: INPUT
-    protocol: tcp
-    destination_port: 80
-    jump: ACCEPT
-    rule_num: 2 
 
 - name: Create nginx {{ username }}.conf
   template:

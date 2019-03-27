@@ -39,7 +39,7 @@
     state: absent
     shell: /bin/bash
 
-- name: Remove /home/{{ username }}  directory
+- name: Remove /home/{{ username }} directory
   file:
     path: "/home/{{ username }}"
     state: absent
@@ -66,14 +66,6 @@
     - tcp
     - udp
 
-- name: Close 80 port
-  iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: 80
-    jump: ACCEPT
-    state: absent
-
 - name: Uninstall packages
   yum:
     name: "{{ packages }}"
@@ -82,4 +74,3 @@
     packages:
     - transmission-daemon
     - transmission-common
-    - nginx
