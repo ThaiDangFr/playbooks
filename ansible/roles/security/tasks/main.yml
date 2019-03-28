@@ -52,6 +52,20 @@
     name: '*'
     state: latest
 
+### hidepid ###
+- name: Modify fstab for hidepid
+  mount:
+    path: /proc
+    src: proc
+    fstype: proc
+    opts: defaults,hidepid=1
+    state: present
+
+- name: Remount /proc
+  shell: "mount -o remount,rw /proc"
+
+### PSAD ###
+
 - name: Find iptables INPUT position
   shell: expr $(iptables -vnL INPUT --line-numbers | wc -l) - 2
   register: ipt_posi
