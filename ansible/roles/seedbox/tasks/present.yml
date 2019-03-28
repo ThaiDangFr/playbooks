@@ -122,6 +122,12 @@
     dest: /etc/nginx/conf.d/{{ username }}.conf
     mode: 0644
 
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+
 - name: Download dir2rss from git
   git:
     repo: "https://github.com/ThaiDangFr/dir2rss.git"
@@ -144,22 +150,16 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Stop dir2rss
-  shell: "./stop.sh"
-  args:
-    chdir: ~/dir2rss
-  become: true
-  become_user: "{{ username }}"
+- name: Create dir2rss-{{ username }}.service
+  template:
+    src: dir2rss.service.j2
+    dest: /etc/systemd/system/dir2rss-{{ username }}.service
+    owner: root
+    group: root
+    mode: 0644
 
-- name: Start dir2rss
-  shell: "./start.sh"
-  args:
-    chdir: ~/dir2rss
-  become: true
-  become_user: "{{ username }}"
-
-- name: Restart service nginx
+- name: Restart service dir2rss-{{ username }}
   service:
-    name: nginx
+    name: "dir2rss-{{ username }}"
     state: restarted
     enabled: yes

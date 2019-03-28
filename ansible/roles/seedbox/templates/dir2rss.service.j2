@@ -1,0 +1,12 @@
+[Unit]
+Description=rss web server
+After=syslog.target network.target
+ 
+[Service]
+Type=simple
+User={{ username }}
+Group=nginx
+ExecStart=/home/{{ username }}/dir2rss/start.sh
+ 
+[Install]
+WantedBy=multi-user.target
