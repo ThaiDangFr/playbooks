@@ -1,0 +1,17 @@
+#!/bin/bash
+export scriptpath=$(realpath -s $(dirname $0))
+cd ${scriptpath}
+PASSWORD="$(jq -r '.password' seedbox-settings.json)"
+PORT="$(jq -r '.http_port' seedbox-settings.json)"
+USERNAME="$(jq -r '.username' seedbox-settings.json)"
+
+echo "Updating blocklist"
+count=0
+res=1
+while [ ${res} -ne 0 ];do
+  sleep 1
+  transmission-remote localhost:${PORT} -n ${USERNAME}:${PASSWORD} --blocklist-update
+  res=$?
+  count=$(expr $count + 1)
+  if [ ${count} -gt 10 ];then exit 1; fi
+done

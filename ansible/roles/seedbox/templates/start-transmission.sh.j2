@@ -6,16 +6,12 @@ PASSWORD="$(jq -r '.password' seedbox-settings.json)"
 PORT="$(jq -r '.http_port' seedbox-settings.json)"
 USERNAME="$(jq -r '.username' seedbox-settings.json)"
 
-if [ -f  ~/transmission-daemon/${USERNAME}.pid ]; then
-	echo "pid file exists, already started"
-	exit 0
-fi
-
 echo "Initializing ..."
 transmission-daemon -g ~/transmission-daemon -a '*' -b -e ~/transmission-daemon/transmission.log -p ${PORT} -t -u ${USERNAME} -v ${PASSWORD} -o -y -m -ep -x ~/transmission-daemon/${USERNAME}.pid
 sleep 5
 PID=$(cat ~/transmission-daemon/${USERNAME}.pid)
 kill -9 $PID
+rm -f ~/transmission-daemon/${USERNAME}.pid 
 
 echo "Modifying config ..."
 cd ~/transmission-daemon/
@@ -55,9 +51,4 @@ if [ ! -d $HOME/Incompletes ];then
 fi
 
 echo "Starting ..."
-transmission-daemon -g ~/transmission-daemon
-
-sleep 5
-
-echo "Updating blocklist"
-transmission-remote localhost:${PORT} -n ${USERNAME}:${PASSWORD} --blocklist-update
+transmission-daemon -g ~/transmission-daemon -f

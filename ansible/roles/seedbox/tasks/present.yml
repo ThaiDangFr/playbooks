@@ -62,10 +62,10 @@
   become: true
   become_user: "{{ username }}"
   
-- name: Copy stop-transmission.sh
+- name: Copy update-blocklist.sh
   template:
-    src: stop-transmission.sh.j2
-    dest: ~/stop-transmission.sh
+    src: update-blocklist.sh.j2
+    dest: ~/update-blocklist.sh
     mode: 0700
   become: true
   become_user: "{{ username }}"
@@ -101,16 +101,20 @@
   with_items:
     - tcp
     - udp
- 
-- name: Stop transmission
-  shell: "~/stop-transmission.sh"
-  become: true
-  become_user: "{{ username }}"
 
-- name: Start transmission
-  shell: "~/start-transmission.sh"
-  become: true
-  become_user: "{{ username }}"
+- name: Create transmission-{{ username }}.service
+  template:
+    src: transmission.service.j2
+    dest: /etc/systemd/system/transmission-{{ username }}.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart service transmission-{{ username }}
+  service:
+    name: "transmission-{{ username }}"
+    state: restarted
+    enabled: yes
 
 - name: Create nginx {{ username }}.conf
   template:
@@ -159,6 +163,3 @@
     name: nginx
     state: restarted
     enabled: yes
-
-
-  

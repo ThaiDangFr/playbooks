@@ -1,0 +1,13 @@
+[Unit]
+Description=transmission (torrent client)
+After=syslog.target network.target
+ 
+[Service]
+Type=simple
+User={{ username }}
+Group=nginx
+ExecStart=/home/{{ username }}/start-transmission.sh
+ExecStartPost=/home/{{ username }}/update-blocklist.sh
+ 
+[Install]
+WantedBy=multi-user.target
