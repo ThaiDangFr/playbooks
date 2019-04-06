@@ -119,7 +119,7 @@
 - name: Create nginx {{ username }}.conf
   template:
     src: nginxinc.conf.j2
-    dest: /etc/nginx/conf.d/{{ username }}.conf
+    dest: /etc/nginx/default.d/{{ username }}.conf
     mode: 0644
 
 - name: Restart service nginx

@@ -302,7 +302,7 @@
 - name: Copy nginx guacamole.conf
   template:
     src: guacamole.conf.j2
-    dest: /etc/nginx/conf.d/guacamole.conf
+    dest: /etc/nginx/default.d/guacamole.conf
     mode: 0644
 
 - name: Restart service nginx
