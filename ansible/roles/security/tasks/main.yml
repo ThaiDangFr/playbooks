@@ -151,7 +151,14 @@
   lineinfile:
     path: /etc/psad/psad.conf
     regexp: '^AUTO_BLOCK_TIMEOUT '
-    line: 'AUTO_BLOCK_TIMEOUT          3600;'
+    line: 'AUTO_BLOCK_TIMEOUT          86400;'
+
+# only send alert when danger level increase
+- name: psad ALERT_ALL
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^ALERT_ALL '
+    line: 'ALERT_ALL                   N;'
 
 
 #####
