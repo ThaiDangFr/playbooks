@@ -16,6 +16,9 @@ ruby installation:
 rails installation:
 ./install_rails.sh -g <github url> -s <server name> -v <ruby version>
 
+rails installation for development environment:
+./install_rails4dev.sh -g <github url> -v <ruby version>
+
 seedbox installation:
 ./install_seedbox.sh -u <username> -p <password> -t <http port> -e <peer port>
 

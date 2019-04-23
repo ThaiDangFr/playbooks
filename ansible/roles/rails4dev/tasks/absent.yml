@@ -1,0 +1,66 @@
+### USER ###
+
+- name: Kill all process owned by {{ username }}
+  shell: pkill -u {{ username }} || echo
+
+- name: Remove user {{ username }}
+  user:
+    name: "{{ username }}"
+    state: absent
+    remove: yes
+
+
+### POSTGRESQL ###
+
+- name: Check if postgresql-server package is installed
+  yum:
+    list=postgresql-server
+  register: yum_list
+
+- name: Delete db {{ username }}
+  postgresql_db:
+    name: "{{ username }}"
+    state: absent
+  become_user: postgres
+  become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
+
+- name: Delete db {{ username }}_development
+  postgresql_db:
+    name: "{{ username }}_development"
+    state: absent
+  become_user: postgres
+  become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
+
+- name: Delete db {{ username }}_test
+  postgresql_db:
+    name: "{{ username }}_test"
+    state: absent
+  become_user: postgres
+  become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
+
+- name: Delete db {{ username }}_production
+  postgresql_db:
+    name: "{{ username }}_production"
+    state: absent
+  become_user: postgres
+  become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
+
+- name: Delete postgresql user {{ username }}
+  postgresql_user:
+    name: "{{ username }}"
+    state: absent
+  become_user: postgres
+  become: true
+  when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
+
+
+### CLEAN BINARIES IF ASKED ###
+- name: Remove postgresql
+  yum:
+    name: postgresql
+    state: absent
+  when: clean_binaries == "yes"
