@@ -29,7 +29,7 @@ while getopts ":g:v:h" opt; do
   esac
 done
 
-if [ $# -lt 6 ];then
+if [ $# -lt 4 ];then
     usage
     exit 1
 fi
