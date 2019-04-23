@@ -35,7 +35,8 @@ if [ $# -lt 4 ];then
 fi
 
 export RAILSUSR=$(basename $GITHUB .git | awk '{print tolower($0)}')
+export DEVUSR=${USER}
 
 export scriptpath=$(dirname $0)
 cd ${scriptpath}/ansible
-ansible-playbook -e "username=$RAILSUSR github=$GITHUB ruby_version=$RUBYVERSION" install_rails4dev.yml
+ansible-playbook -e "devusr=$DEVUSR username=$RAILSUSR github=$GITHUB ruby_version=$RUBYVERSION" install_rails4dev.yml

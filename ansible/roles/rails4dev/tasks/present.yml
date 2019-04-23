@@ -37,10 +37,10 @@
     name: '*'
     state: latest
 
-- name: Add user {{ username }}
-  user:
-    name: "{{ username }}"
-    shell: /bin/bash
+#- name: Add user {{ username }}
+#  user:
+#    name: "{{ username }}"
+#    shell: /bin/bash
 
 - name: Import rvm public key
   shell: "curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -"
@@ -88,33 +88,50 @@
     name: postgresql
     enabled: yes
 
-- name: Create user for postgresql
+### currentuser
+- name: Create user {{ devusr }} for postgresql
   postgresql_user:
-    name: "{{ username }}"
+    name: "{{ devusr }}"
     role_attr_flags: CREATEDB,CREATEROLE
   become_user: postgres
   become: true
   
-- name: Create db {{ username }}
+- name: Create db "{{ devusr }}"
   postgresql_db:
-    name: "{{ username }}"
-    owner: "{{ username }}"
+    name: "{{ devusr }}"
+    owner: "{{ devusr }}"
   become_user: postgres
   become: true
+###
+
+
+#- name: Create user for postgresql
+#  postgresql_user:
+#    name: "{{ username }}"
+#    role_attr_flags: CREATEDB,CREATEROLE
+#  become_user: postgres
+#  become: true
+  
+#- name: Create db {{ username }}
+#  postgresql_db:
+#    name: "{{ username }}"
+#    owner: "{{ username }}"
+#  become_user: postgres
+#  become: true
 
 - name: Create db {{ username }}_development
   postgresql_db:
     name: "{{ username }}_development"
-    owner: "{{ username }}"
+    owner: "{{ devusr }}"
   become_user: postgres
   become: true
 
-#- name: Create db {{ username }}_test
-#  postgresql_db:
-#    name: "{{ username }}_test"
-#    owner: "{{ username }}"
-#  become_user: postgres
-#  become: true
+- name: Create db {{ username }}_test
+  postgresql_db:
+    name: "{{ username }}_test"
+    owner: "{{ devusr }}"
+  become_user: postgres
+  become: true
 
 #- name: Create db {{ username }}_production
 #  postgresql_db:
@@ -131,12 +148,12 @@
     repo: "{{ github }}"
     dest: "~/code/{{ username }}"
     force: yes
-  become_user: "{{ lookup('env','USER') }}"
+  become_user: "{{ devusr }}"
   become: true
 
 - name: Init {{ username }} project
   script: init.sh
   args:
-    chdir: "/home/{{ lookup('env','USER') }}/code/{{ username }}"
-  become_user: "{{ lookup('env','USER') }}"
+    chdir: "/home/{{ devusr }}/code/{{ username }}"
+  become_user: "{{ devusr }}"
   become: true

@@ -34,6 +34,8 @@ if [ $# -lt 2 ];then
     exit 1
 fi
 
+export DEVUSR=${USER}
+
 export scriptpath=$(dirname $0)
 cd ${scriptpath}/ansible
-ansible-playbook -e "username=$USERNAME clean_binaries=$CLEANBINARIES" uninstall_rails4dev.yml
+ansible-playbook -e "devusr=$DEVUSR username=$USERNAME clean_binaries=$CLEANBINARIES" uninstall_rails4dev.yml
