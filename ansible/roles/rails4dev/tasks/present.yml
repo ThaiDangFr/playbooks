@@ -1,3 +1,12 @@
+- name: Add chrome repository
+  yum_repository:
+    name: google-chrome
+    description: google chrome repo
+    baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://dl-ssl.google.com/linux/linux_signing_key.pub
+
 - name: Install packages
   yum:
     name: "{{ packages }}"
@@ -6,11 +15,42 @@
     - postgresql-server
     - postgresql-contrib
     - postgresql-devel
+    - git
+    - ruby
+    - ruby-devel
+    - nodejs
+    - mlocate
+    - python-psycopg2
+    - rubygem-execjs
+    - patch
+    - bison
+    - bzip2
+    - gcc-c++
+    - libffi-devel
+    - readline-devel
+    - sqlite-devel
+    - chromedriver
+    - google-chrome-stable
 
 - name: Upgrade all packages
   yum:
     name: '*'
     state: latest
+
+- name: Add user {{ username }}
+  user:
+    name: "{{ username }}"
+    shell: /bin/bash
+
+- name: Import rvm public key
+  shell: "curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -"
+
+- name: Install rvm
+  shell: "curl -L get.rvm.io | bash -s stable"
+
+- name: Install {{ ruby_version }} version of ruby
+  shell: "bash -l -c 'rvm use {{ ruby_version }} --install --default'"
+
 
 ### POSTGRESQL ###
 
@@ -26,8 +66,6 @@
     path: ~/.bashrc
     regexp: '^export SECRET_KEY_BASE='
     line: "export SECRET_KEY_BASE={{ skb }}"
-  become_user: "{{ username }}"
-  become: true
 
 - name: Check that postgresql is initialized
   stat:
@@ -93,14 +131,10 @@
     repo: "{{ github }}"
     dest: "~/code"
     force: yes
-  become: true
-  become_user: "{{ username }}"
 
 
 - name: Init {{ username }} project
   script: init.sh
   args:
-    chdir: "/home/{{ username }}/code"
-  become: true
-  become_user: "{{ username }}"
+    chdir: "~/code/{{ username }}"
 

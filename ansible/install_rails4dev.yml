@@ -3,5 +3,4 @@
   vars:
     state: present
   roles:
-    - ruby
     - rails4dev

@@ -57,6 +57,11 @@
   become: true
   when: yum_list.results | selectattr("yumstate", "match", "installed") | list | length > 0
 
+- name: Remove git checkout
+  file:
+    state: absent
+    path: "~/code/{{ username }}/"
+
 
 ### CLEAN BINARIES IF ASKED ###
 - name: Remove postgresql
