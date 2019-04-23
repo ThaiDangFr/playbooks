@@ -49,7 +49,7 @@
   shell: "curl -L get.rvm.io | bash -s stable"
 
 - name: Install {{ ruby_version }} version of ruby
-  shell: "bash -l -c 'rvm use {{ ruby_version }} --install --default'"
+  shell: "bash -l -c 'rvm use {{ ruby_version }} --install --default' | echo"
 
 
 ### POSTGRESQL ###
@@ -129,12 +129,14 @@
 - name: Retrieve {{ username }} project from git
   git:
     repo: "{{ github }}"
-    dest: "~/code"
+    dest: "~/code/{{ username }}"
     force: yes
-
+  become_user: "{{ lookup('env','USER') }}"
+  become: true
 
 - name: Init {{ username }} project
   script: init.sh
   args:
-    chdir: "~/code/{{ username }}"
-
+    chdir: "/home/{{ lookup('env','USER') }}/code/{{ username }}"
+  become_user: "{{ lookup('env','USER') }}"
+  become: true
