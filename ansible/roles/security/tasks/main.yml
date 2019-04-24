@@ -24,14 +24,14 @@
     - whois
     - lynis
     - psad
-    - ntp
     - tree
     - wget
     - nginx
+    - chrony
 
-- name: Start service ntpd
+- name: Start service chronyd for ntp
   service:
-    name: ntpd
+    name: chronyd
     state: started
     enabled: yes
 
