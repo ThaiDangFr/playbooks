@@ -29,7 +29,6 @@
     - libffi-devel
     - readline-devel
     - sqlite-devel
-    - chromedriver
     - google-chrome-stable
 
 - name: Upgrade all packages
