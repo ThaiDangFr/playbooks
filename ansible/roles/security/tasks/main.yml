@@ -78,7 +78,7 @@
     rule_num: "{{ ipt_posi.stdout }}"
 
 - name: Find iptables FORWARD position
-  shell: expr $(iptables -vnL FORWARD --line-numbers | wc -l) - 3
+  shell: expr $(iptables -vnL FORWARD --line-numbers | wc -l) - 2
   register: ipt_posi
 
 - name: Update iptables FORWARD for psad
@@ -208,3 +208,6 @@
     name: nginx
     state: restarted
     enabled: yes
+
+- name: Save iptables
+  shell: "service iptables save"
