@@ -200,9 +200,9 @@
     action: insert
     chain: INPUT
     protocol: tcp
-    destination_port: 80
+    destination_port: "80"
     jump: ACCEPT
-    rule_num: 2  
+    rule_num: "2"
 
 - name: Create nginx 0securenginx.conf
   template:
