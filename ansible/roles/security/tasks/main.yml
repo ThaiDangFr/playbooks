@@ -160,6 +160,13 @@
     regexp: '^ALERT_ALL '
     line: 'ALERT_ALL                   N;'
 
+# disable alerts, default ALL
+- name: psad ALERTING_METHODS
+  lineinfile:
+    path: /etc/psad/psad.conf
+    regexp: '^ALERTING_METHODS '
+    line: 'ALERTING_METHODS                   noemail,nosyslog;'
+
 
 #####
 - name: Start service psad
