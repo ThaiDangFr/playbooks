@@ -37,6 +37,7 @@
     - unzip
     - xorg-x11-apps
     - ImageMagick
+    - nginx
 
 - name: Upgrade all packages
   yum:
