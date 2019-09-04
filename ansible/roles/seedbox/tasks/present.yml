@@ -45,6 +45,8 @@
   file:
     path: "/home/{{ username }}"
     mode: 0750
+    owner: "{{ username }}"
+    group: nginx
 
 - name: Copy seedbox-settings.json
   template:
