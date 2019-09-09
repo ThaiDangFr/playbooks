@@ -52,6 +52,19 @@
     name: '*'
     state: latest
 
+### sshd ###
+- name: Modify sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication '
+    line: 'PasswordAuthentication no'
+
+- name: Reload sshd
+  service:
+    name: sshd
+    state: reloaded
+    enabled: yes
+
 ### hidepid ###
 - name: Modify fstab for hidepid
   mount:
