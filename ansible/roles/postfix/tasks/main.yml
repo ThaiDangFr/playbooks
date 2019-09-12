@@ -6,6 +6,7 @@
     - postfix
     - mailx
     - cyrus-sasl-plain
+    - bind-utils
 
 - name: Upgrade all packages
   yum:
