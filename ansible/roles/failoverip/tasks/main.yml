@@ -1,0 +1,49 @@
+- name: Duplicate ifcfg-eth0
+  copy:
+    src: /etc/sysconfig/network-scripts/ifcfg-eth0
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    remote_src: yes
+
+- name: Modify ifcfg-eth0:0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    regexp: '^DEVICE='
+    line: 'DEVICE="eth0:0"'
+
+- name: Modify ifcfg-eth0:0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    regexp: '^ONBOOT='
+    line: 'ONBOOT="yes"'
+
+- name: Modify ifcfg-eth0:0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    regexp: '^BOOTPROTO='
+    line: 'BOOTPROTO="static"'
+
+- name: Modify ifcfg-eth0:0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    regexp: '^IPADDR='
+    line: 'IPADDR="{{ failoverip }}"'
+
+- name: Modify ifcfg-eth0:0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    regexp: '^NETMASK='
+    line: 'NETMASK="255.255.255.255"'
+
+- name: Modify ifcfg-eth0:0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0:0
+    regexp: '^BROADCAST='
+    line: 'BROADCAST="{{ failoverip }}"'
+
+- name: Start interface
+  net_interface:
+    name: ifcfg-eth0:0
+    state: up
+
+
+
