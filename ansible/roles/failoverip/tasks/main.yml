@@ -41,9 +41,10 @@
     line: 'BROADCAST="{{ failoverip }}"'
 
 - name: Start interface
-  net_interface:
-    name: ifcfg-eth0:0
-    state: up
+  shell: "ifup eth0:0"
+#  net_interface:
+#    name: ifcfg-eth0:0
+#    state: up
 
 
 
