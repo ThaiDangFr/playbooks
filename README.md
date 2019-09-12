@@ -20,7 +20,7 @@ rails installation for development environment:
 ./install_rails4dev.sh -g <github url> -v <ruby version>
 
 seedbox installation:
-./install_seedbox.sh -u <username> -p <password> -t <http port> -e <peer port>
+./install_seedbox.sh -u <username> -p <password> -t <http port> -e <peer port> -b <bind ip>
 
 etherpad installation:
 ./install_etherpad.sh -u <admin username> -p <admin password> -s <server name>

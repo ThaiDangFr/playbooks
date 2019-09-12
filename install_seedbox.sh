@@ -1,11 +1,17 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage $0 -u <username> -p <password> -t <http port> -e <peer port>" 1>&2
+  echo "Usage $0 -u <username> -p <password> -t <http port> -e <peer port> -b <bind ip>" 1>&2
 } 
 
-while getopts ":u:p:ht:e:" opt; do
+BIND_IP="0.0.0.0"
+
+while getopts ":b:u:p:ht:e:" opt; do
   case $opt in
+    b)
+      echo "-b was triggered, Parameter: $OPTARG" >&2
+      export BIND_IP=$OPTARG
+      ;;
     u)
       echo "-u was triggered, Parameter: $OPTARG" >&2
       export AUSERNAME=$OPTARG
@@ -45,4 +51,4 @@ fi
 
 export scriptpath=$(dirname $0)
 cd ${scriptpath}/ansible
-ansible-playbook -e "username=$AUSERNAME password=$APASSWORD http_port=$HTTP_PORT peer_port=$PEER_PORT" install_seedbox.yml
+ansible-playbook -e "username=$AUSERNAME password=$APASSWORD http_port=$HTTP_PORT peer_port=$PEER_PORT bind_ip=$BIND_IP" install_seedbox.yml

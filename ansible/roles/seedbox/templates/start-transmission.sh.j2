@@ -5,6 +5,7 @@ cd ${scriptpath}
 PASSWORD="$(jq -r '.password' seedbox-settings.json)"
 PORT="$(jq -r '.http_port' seedbox-settings.json)"
 USERNAME="$(jq -r '.username' seedbox-settings.json)"
+BIND_IP="$(jq -r '.bind_ip' seedbox-settings.json)"
 
 echo "Initializing ..."
 transmission-daemon -g ~/transmission-daemon -a '*' -b -e ~/transmission-daemon/transmission.log -p ${PORT} -t -u ${USERNAME} -v ${PASSWORD} -o -y -m -ep -x ~/transmission-daemon/${USERNAME}.pid
@@ -15,7 +16,7 @@ rm -f ~/transmission-daemon/${USERNAME}.pid
 
 echo "Modifying config ..."
 cd ~/transmission-daemon/
-cat settings.json | awk -F\" -v HOME="$HOME" '
+cat settings.json | awk -F\" -v HOME="$HOME" -v BIND_IP="$BIND_IP" '
 {
 if($2 == "blocklist-url" ) {print "\"blocklist-url\": \"http://john.bitsurge.net/public/biglist.p2p.gz\","}
 else if($2 == "blocklist-enabled") {print "\"blocklist-enabled\": true,"}
@@ -36,6 +37,7 @@ else if($2 == "peer-port") {print "\"peer-port\": {{ peer_port }},"}
 else if($2 == "pex-enabled") {print "\"pex-enabled\": false,"}
 else if($2 == "dht-enabled") {print "\"dht-enabled\": false,"}
 else if($2 == "lpd-enabled") {print "\"lpd-enabled\": false,"}
+else if($2 == "bind-address-ipv4") {print "\"bind-address-ipv4\":\"" BIND_IP "\","}
 else {print $0}
 }
 ' > settings.json.tmp
